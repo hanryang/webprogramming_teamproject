@@ -1,0 +1,19 @@
+bar
+
+enemyPlant
+
+enemy
+
+enemyHealth
+
+bullet(=ball) --(속도)
+
+health(=enemy와 맞은 것)
+
+score(=죽인 enemy)
+
+line(하한선)
+
+
+
+.json
