@@ -295,6 +295,26 @@ function handleCollision(ball, block, collDirect) {
   }
 }
 
+function topCollision(ball, block) {
+  //a is above b (ball is above block)
+  return detectCollision(ball, block) && ball.y + ball.height >= block.y;
+}
+
+function bottomCollision(ball, block) {
+  //a is above b (ball is below block)
+  return detectCollision(ball, block) && block.y + block.height >= ball.y;
+}
+
+function leftCollision(ball, block) {
+  //a is left of b (ball is left of block)
+  return detectCollision(ball, block) && ball.x + ball.width >= block.x;
+}
+
+function rightCollision(ball, block) {
+  //a is right of b (ball is right of block)
+  return detectCollision(ball, block) && block.x + block.width >= ball.x;
+}
+
 function createBlocks() {
   // 이 부분에서 난수로 0~10(?)개 정도 난수로 뽑아서 열로 내려오는 것을 구현하면 될 것 같습니다.
   blockArray = []; //clear blockArray
