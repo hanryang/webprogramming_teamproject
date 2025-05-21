@@ -31,11 +31,18 @@ let ball = {
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
 };
+//충돌 이전 위치와 이를 통한 충돌 방향 계산
+let prevBall = {
+  x: ball.x - ball.velocityX,
+  y: ball.y - ball.velocityY,
+  width: ball.width,
+  height: ball.height,
+};
 
 //blocks
 let blockArray = [];
 let blockWidth = 55;
-let blockHeight = 20;
+let blockHeight = 55;
 let blockColumns = 8;
 let blockRows = 3; //add more as game goes on
 let blockMaxRows = 10; //limit how many rows
@@ -119,7 +126,10 @@ function update() {
   }
   context.clearRect(0, 0, board.width, board.height);
 
-  //player 움직임 처리리
+  prevBall.x = ball.x;
+  prevBall.y = ball.y;
+
+  //player 움직임 처리
   if (keys.ArrowLeft) {
     // player.x -= player.velocityX;
     let nextplayerX = player.x - player.velocityX;
@@ -132,7 +142,6 @@ function update() {
     if (!outOfBounds(nextplayerX)) {
       player.x = nextplayerX;
     }
-    // player.x += player.velocityX;
   }
 
   // player
@@ -166,23 +175,40 @@ function update() {
   }
 
   //blocks
+  let brokenBlocks = [];
+
   context.fillStyle = "skyblue";
   for (let i = 0; i < blockArray.length; i++) {
     let block = blockArray[i];
-    if (!block.break) {
-      if (topCollision(ball, block) || bottomCollision(ball, block)) {
-        block.break = true; // block is broken
-        ball.velocityY *= -1; // flip y direction up or down
-        score += 100;
-        blockCount -= 1;
-      } else if (leftCollision(ball, block) || rightCollision(ball, block)) {
-        block.break = true; // block is broken
-        ball.velocityX *= -1; // flip x direction left or right
-        score += 100;
-        blockCount -= 1;
-      }
+
+    if (block.breakingTimer > 0) {
+      block.breakingTimer--;
       context.fillRect(block.x, block.y, block.width, block.height);
+      continue;
     }
+
+    if (block.break) continue;
+
+    let collided = false; //한 프레임 당 블럭 하나만 깨지게 수정.
+
+    let collDirect = getCollisionDirection(ball, prevBall, block);
+
+    if (collDirect) {
+      handleCollision(ball, block, collDirect);
+      collided = true;
+    }
+
+    if (collided) {
+      brokenBlocks.push(block);
+      block.breakingTimer = 3;
+      score += 100;
+      blockCount -= 1;
+    }
+    context.fillRect(block.x, block.y, block.width, block.height);
+  }
+
+  for (let b of brokenBlocks) {
+    b.break = true;
   }
 
   //next level
@@ -210,24 +236,63 @@ function detectCollision(ball, block) {
   ); //a's bottom left corner passes b's top left corner
 }
 
-function topCollision(ball, block) {
-  //a is above b (ball is above block)
-  return detectCollision(ball, block) && ball.y + ball.height >= block.y;
+function getCollisionDirection(ball, prevBall, block) {
+  if (!detectCollision(ball, block)) return null;
+
+  const prevBottom = prevBall.y + prevBall.height;
+  const currBottom = ball.y + ball.height;
+
+  const prevTop = prevBall.y;
+  const currTop = ball.y;
+
+  const prevRight = prevBall.x + prevBall.width;
+  const currRight = ball.x + ball.width;
+
+  const prevLeft = prevBall.x;
+  const currLeft = ball.x;
+
+  // 위에서 들어옴
+  if (prevBottom <= block.y && currBottom >= block.y) {
+    return "top";
+  }
+
+  // 아래에서 들어옴
+  if (prevTop >= block.y + block.height && currTop <= block.y + block.height) {
+    return "bottom";
+  }
+
+  // 왼쪽에서 들어옴
+  if (prevRight <= block.x && currRight >= block.x) {
+    return "left";
+  }
+
+  // 오른쪽에서 들어옴
+  if (prevLeft >= block.x + block.width && currLeft <= block.x + block.width) {
+    return "right";
+  }
+
+  return "unknown";
 }
 
-function bottomCollision(ball, block) {
-  //a is above b (ball is below block)
-  return detectCollision(ball, block) && block.y + block.height >= ball.y;
-}
-
-function leftCollision(ball, block) {
-  //a is left of b (ball is left of block)
-  return detectCollision(ball, block) && ball.x + ball.width >= block.x;
-}
-
-function rightCollision(ball, block) {
-  //a is right of b (ball is right of block)
-  return detectCollision(ball, block) && block.x + block.width >= ball.x;
+function handleCollision(ball, block, collDirect) {
+  switch (collDirect) {
+    case "top":
+      ball.y = block.y - ball.height;
+      ball.velocityY *= -1;
+      break;
+    case "bottom":
+      ball.y = block.y + block.height;
+      ball.velocityY *= -1;
+      break;
+    case "left":
+      ball.x = block.x - ball.width;
+      ball.velocityX *= -1;
+      break;
+    case "right":
+      ball.x = block.x + block.width;
+      ball.velocityX *= -1;
+      break;
+  }
 }
 
 function createBlocks() {
@@ -241,6 +306,7 @@ function createBlocks() {
         width: blockWidth,
         height: blockHeight,
         break: false,
+        breakingTimer: 0,
       };
       blockArray.push(block);
     }
