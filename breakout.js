@@ -154,16 +154,26 @@ function update() {
   ball.y += ball.velocityY;
   context.fillRect(ball.x, ball.y, ball.width, ball.height);
 
-  //bounce the ball off player paddle
-  if (topCollision(ball, player) || bottomCollision(ball, player)) {
-    ball.velocityY *= -1; // flip y direction up or down
-  } else if (leftCollision(ball, player) || rightCollision(ball, player)) {
-    ball.velocityX *= -1; // flip x direction left or right
+  //bar 맞는 위치에 따라 공 굴절 각도 달라짐짐
+  if (topCollision(ball, player)) {
+    // 공 중심 위치와 패들 왼쪽 위치 차이
+    let relativeIntersectX = ball.x + ball.width / 2 - player.x;
+    let normalizedIntersectX = (relativeIntersectX / player.width) * 2 - 1; // -1 ~ 1 범위
+
+    // 최대 X 속도 설정
+    let maxBounceAngle = Math.PI / 3; // 60도 정도 각도 제한
+    let bounceAngle = normalizedIntersectX * maxBounceAngle;
+
+    let speed = Math.sqrt(ball.velocityX ** 2 + ball.velocityY ** 2);
+
+    // 새 속도 설정
+    ball.velocityX = speed * Math.sin(bounceAngle);
+    ball.velocityY = -speed * Math.cos(bounceAngle); // 위로 튕기니까 음수
   }
 
   if (ball.y <= 0) {
     // if ball touches top of canvas
-    ball.velocityY *= -1; //reverse direction
+    ball.velocityY *= -1; //rev erse direction
   } else if (ball.x <= 0 || ball.x + ball.width >= boardWidth) {
     // if ball touches left or right of canvas
     ball.velocityX *= -1; //reverse direction
@@ -174,7 +184,6 @@ function update() {
     gameOver = true;
   }
 
-  //blocks
   let brokenBlocks = [];
 
   context.fillStyle = "skyblue";
@@ -200,7 +209,7 @@ function update() {
 
     if (collided) {
       brokenBlocks.push(block);
-      block.breakingTimer = 3;
+      block.breakingTimer = 5; //블럭이 너무 빨리 깨지는 것 방지
       score += 100;
       blockCount -= 1;
     }
