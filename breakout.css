@@ -1,10 +1,16 @@
-body {
-    text-align: center;
+#start_menu button {
+  display: block;
 }
 
 #board {
-    background-color: black;
-    border-top: 5px solid skyblue;
-    border-left: 5px solid skyblue;
-    border-right: 5px solid skyblue;
+  display: none;
+  background-color: black;
+  border-top: 5px solid skyblue;
+  border-left: 5px solid skyblue;
+  border-right: 5px solid skyblue;
+}
+
+.hover {
+  background-color: black;
+  color: white;
 }
