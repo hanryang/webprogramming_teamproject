@@ -21,8 +21,12 @@ let player = { //
 // 공의 크기 및 속도
 let ballWidth = 10;
 let ballHeight = 10;
-let ballVelocityX = 3; //15 for testing, 3 normal
-let ballVelocityY = 2; //10 for testing, 2 normal
+
+let ballspeed; // 벡터의 크기 (속력)
+let angle; // 0 ~ 2π 범위의 무작위 각도 (라디안)
+
+let ballVelocityX; // x 방향 성분
+let ballVelocityY; // y 방향 성분
 
 // ball의 구조체
 let ball = {
@@ -56,6 +60,15 @@ let score = 0;
 let gameOver = false;
 
 $(document).ready(function () {
+
+    let ballspeed = 3; // 벡터의 크기 (속력)
+    let angle = Math.random() * Math.PI; // 0 ~ 2π 범위의 무작위 각도 (라디안)
+    let ballVelocityX = ballspeed * Math.cos(angle); // x 방향 성분
+    let ballVelocityY = ballspeed * Math.sin(angle); // y 방향 성분
+
+    ball.velocityX = ballVelocityX;
+    ball.velocityY = ballVelocityY;
+
     board = document.getElementById("board");
     board.width = boardWidth;
     board.height = boardHeight;
