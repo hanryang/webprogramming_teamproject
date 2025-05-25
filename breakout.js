@@ -66,13 +66,50 @@ $(document).ready(function () {
     context.fillStyle = "skyblue";
     context.fillRect(player.x, player.y, player.width, player.height);
 
-    $("#game_start").click(function() {
-      requestAnimationFrame(update);  // SetInterval과 비슷한 역할을 한다.
-      $(document).on("keydown", movePlayer);
 
-      $("#game_ui").hide();
+    $("#game_start").click(function() {
+
+        // 게임 시작 클릭 후 UI를 숨긴다
+        $("#game_ui").hide();
+        // 카운트다운 텍스트 생성 및 표시
+        let countdown = 3;
+
+        // 카운트 다운
+        let countdownDiv = $("<div id='countdown'></div>").css({
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize: "60px",
+            fontWeight: "bold",
+            color: "red",
+            zIndex: 100
+        }).text(countdown);
+
+        // 카운트 다운 생성
+        $("body").append(countdownDiv);
+
+        // countdownInterval을 통해 3초간 게임을 시작하지 않고 기다린다.
+        let countdownInterval = setInterval(function () {
+          countdown--;
+          if (countdown > 0) {
+              $("#countdown").text(countdown);
+          } else {
+              clearInterval(countdownInterval);
+              $("#countdown").remove();
+
+              // ⏱ 3초 후에 게임 시작
+              requestAnimationFrame(update);
+              $(document).on("keydown", movePlayer);
+          }
+        }, 1000); // 1초 간격으로 카운트다운
+
       enemyAppear(); // enemy을 생성하는 역할
     });
+
+    $("#setting").click(function() {
+
+    })
 
 
 });
@@ -133,7 +170,7 @@ function update() {
 
     //next level
     if (enemyCount == 0) {
-        score += 100*enemyRows*enemyColumns; //bonus points :)
+        score +=  100 * enemyRows * enemyColumns; //bonus points :)
         enemyRows = Math.min(enemyRows + 1, enemyMaxRows);
         createenemys();
     }
