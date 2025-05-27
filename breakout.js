@@ -5,7 +5,7 @@ let boardHeight = 650;
 let context; 
 
 // 플레이어의 크기 및 속력
-let playerWidth = 80;
+let playerWidth = 500;
 let playerHeight = 10;
 let playerVelocityX = 30; // 10pixel 정도로 움직임
 
@@ -19,8 +19,9 @@ let player = { //
 }
 
 // 공의 크기 및 속도
-let ballWidth = 10;
-let ballHeight = 10;
+// let ballWidth = 10;
+// let ballHeight = 10;
+let ballradius = 10; 
 
 let ballspeed; // 벡터의 크기 (속력)
 let angle; // 0 ~ 2π 범위의 무작위 각도 (라디안)
@@ -32,8 +33,9 @@ let ballVelocityY; // y 방향 성분
 let ball = {
     x : boardWidth/2,
     y : boardHeight/2,
-    width: ballWidth,
-    height: ballHeight,
+    radius : 10,
+    // width: ballWidth,
+    // height: ballHeight,
     velocityX : ballVelocityX,
     velocityY : ballVelocityY
 }
@@ -61,7 +63,7 @@ let gameOver = false;
 
 $(document).ready(function () {
 
-    let ballspeed = 3; // 벡터의 크기 (속력)
+    let ballspeed = 10; // 벡터의 크기 (속력)
     let angle = Math.random() * Math.PI; // 0 ~ 2π 범위의 무작위 각도 (라디안)
     let ballVelocityX = ballspeed * Math.cos(angle); // x 방향 성분
     let ballVelocityY = ballspeed * Math.sin(angle); // y 방향 성분
@@ -139,22 +141,18 @@ function update() {
     context.clearRect(0, 0, board.width, board.height);
 
     // player 그리기
+
     context.fillStyle = "lightgreen";
     context.fillRect(player.x, player.y, player.width, player.height);
 
     // ball 그리기
+    context.beginPath();
     context.fillStyle = "white";
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
-    context.fillRect(ball.x, ball.y, ball.width, ball.height);
-
-    // enemy 그리기
-    context.fillStyle = "red";
-    for (let i = 0; i < enemyArray.length; ++i) {
-      enemyArray[i].x += enemyVelocitX;
-      enemyArray[i].y += enemyVelocitY;
-      context.fillRect(enemyArray[i].x, enemyArray[i].y, enemyArray[i].width, enemyArray[i].height);
-    }
+    context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    context.fill();
+    context.closePath();
 
     //bounce the ball off player paddle
     if (topCollision(ball, player) || bottomCollision(ball, player)) {
@@ -168,11 +166,11 @@ function update() {
         // if ball touches top of canvas
         ball.velocityY *= -1; //reverse direction
     }
-    else if (ball.x <= 0 || (ball.x + ball.width >= boardWidth)) {
+    else if (ball.x <= 0 || (ball.x + ball.radius >= boardWidth)) {
         // if ball touches left or right of canvas
         ball.velocityX *= -1; //reverse direction
     }
-    else if (ball.y + ball.height >= boardHeight) {
+    else if (ball.y + ball.radius >= boardHeight) {
         // if ball touches bottom of canvas
         context.font = "20px sans-serif";
         context.fillText("Game Over: Press 'Space' to Restart", 80, 400);
@@ -221,27 +219,46 @@ function movePlayer(e) {
     }
 }
 
-function detectCollision(ball, enemy) {
-    return ball.x < enemy.x + enemy.width &&   //ball의 왼쪽 위 코너 corner doesn't reach b's top right corner
-           ball.x + ball.width > enemy.x &&   //a's top right corner passes b's top left corner
-           ball.y < enemy.y + enemy.height &&  //a's top left corner doesn't reach b's bottom left corner
-           ball.y + ball.height > enemy.y;    //a's bottom left corner passes b's top left corner
+// 충돌을 감지하는 함수 ball과 enemy의 충돌감지
+// function detectCollision(ball, enemy) {
+//     return ball.x < enemy.x + enemy.width &&   //ball의 왼쪽 위 코너 corner doesn't reach b's top right corner
+//            ball.x + ball.width > enemy.x &&   //a's top right corner passes b's top left corner
+//            ball.y < enemy.y + enemy.height &&  //a's top left corner doesn't reach b's bottom left corner
+//            ball.y + ball.height > enemy.y;    //a's bottom left corner passes b's top left corner
+// }
+
+function detectCollision(circle, rect) {
+    // 원의 중심 좌표
+    const cx = circle.x;
+    const cy = circle.y;
+    const r = circle.radius;
+
+    // 사각형의 가장 가까운 점 계산
+    const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.width));
+    const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.height));
+
+    // 원 중심과 가장 가까운 점 사이의 거리 계산
+    const dx = cx - closestX;
+    const dy = cy - closestY;
+
+    // 피타고라스 정리로 거리 제곱 계산
+    return (dx * dx + dy * dy) <= (r * r);
 }
 
-function topCollision(ball, enemy) { //a is above b (ball is above enemy)
-    return detectCollision(ball, enemy) && (ball.y + ball.height) >= enemy.y;
+function topCollision(ball, enemy) { // ball이 enemy 위에서 충돌했을 경우
+    return detectCollision(ball, enemy) && (ball.y + ball.radius) >= enemy.y;
 }
 
 function bottomCollision(ball, enemy) { //a is above b (ball is below enemy)
-    return detectCollision(ball, enemy) && (enemy.y + enemy.height) >= ball.y;
+    return detectCollision(ball, enemy) && (enemy.y + enemy.height) >= ball.radius;
 }
 
 function leftCollision(ball, enemy) { //a is left of b (ball is left of enemy)
-    return detectCollision(ball, enemy) && (ball.x + ball.width) >= enemy.x;
+    return detectCollision(ball, enemy) && (ball.x + ball.radius) >= enemy.x;
 }
 
 function rightCollision(ball, enemy) { //a is right of b (ball is right of enemy)
-    return detectCollision(ball, enemy) && (enemy.x + enemy.width) >= ball.x;
+    return detectCollision(ball, enemy) && (enemy.x + enemy.width) >= ball.radius;
 }
 
 
@@ -270,25 +287,32 @@ function createenemys() { // 이 부분에서 난수로 0~10(?)개 정도 난수
     enemyCount = enemyArray.length;
 }
 
+
+
 function enemyDraw() {
-    //enemys
-    context.fillStyle = "skyblue";
     for (let i = 0; i < enemyArray.length; i++) {
         let enemy = enemyArray[i];
         if (enemy.HP > 0) {
+            // 충돌 판정
             if (topCollision(ball, enemy) || bottomCollision(ball, enemy)) {
-                enemy.HP -= 1;     // enemy is broken
-                ball.velocityY *= -1;   // flip y direction up or down
+                enemy.HP -= 1;
+                ball.velocityY *= -1;
+                score += 100;
+                enemyCount -= 1;
+            } else if (leftCollision(ball, enemy) || rightCollision(ball, enemy)) {
+                enemy.HP -= 1;
+                ball.velocityX *= -1;
                 score += 100;
                 enemyCount -= 1;
             }
-            else if (leftCollision(ball, enemy) || rightCollision(ball, enemy)) {
-                enemy.HP -= 1;     // enemy is broken
-                ball.velocityX *= -1;   // flip x direction left or right
-                score += 100;
-                enemyCount -= 1;
-            }
+
+            // 그리기
+            context.fillStyle = "skyblue";
             context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+            // 이동 처리
+            enemy.x += enemy.velocityX;
+            enemy.y += enemy.velocityY;
         }
     }
 }
