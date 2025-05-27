@@ -1,6 +1,6 @@
 //board
 let board;
-let boardWidth = 1000;
+let boardWidth = 500;
 let boardHeight = 500;
 let context;
 
@@ -20,8 +20,8 @@ let player = {
 //ball
 let ballWidth = 10;
 let ballHeight = 10;
-let ballVelocityX = 3;
-let ballVelocityY = 2;
+let ballVelocityX = 3; //15 for testing, 3 normal
+let ballVelocityY = 2; //10 for testing, 2 normal
 
 let ball = {
   x: boardWidth / 2,
