@@ -1,9 +1,36 @@
+body {
+  background-color: black;
+}
+
+#start_menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #start_menu button {
   display: block;
 }
 
-#board {
+#level_select_menu {
   display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#level_select_menu button {
+  display: block;
+}
+
+#level_select_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: black;
   border-top: 5px solid skyblue;
   border-left: 5px solid skyblue;
