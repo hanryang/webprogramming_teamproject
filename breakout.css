@@ -25,7 +25,7 @@ body {
   display: block;
 }
 
-#level_select_menu {
+#board {
   display: none;
   position: absolute;
   top: 50%;

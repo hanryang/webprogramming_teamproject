@@ -1,7 +1,7 @@
 //board
 let board;
-let boardWidth = 500;
-let boardHeight = 500;
+const boardWidth = 800;
+const boardHeight = 600;
 let context;
 
 //players
@@ -25,8 +25,7 @@ let ballVelocityY = 5; //10 for testing, 2 normal
 let ball = {
   x: boardWidth / 2,
   y: boardHeight / 2,
-  width: ballWidth,
-  height: ballHeight,
+  rad: ballRad,
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
 };
@@ -40,7 +39,7 @@ let initBlockRows = 3; //add more as game goes on
 let blockCount = 0;
 
 //starting block corners top left
-let blockX = 15;
+let blockX = 30;
 let blockY = 45;
 
 let levelCompleted = false;
@@ -99,6 +98,8 @@ window.onload = function () {
   board.height = boardHeight;
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
+
+  setupCanvas();
 
   start.onclick = function () {
     startMenu.style.display = "none";
@@ -189,6 +190,11 @@ function update(time = 0) {
     return;
   }
   requestAnimationFrame(update);
+
+  if (lastTime === 0) lastTime = time;
+  const deltaTime = time - lastTime;
+  lastTime = time;
+
   //stop drawing
   if (gameOver) {
     context.fillStyle = "lightBlue";
@@ -243,13 +249,15 @@ function update(time = 0) {
   context.fillStyle = "white";
   ball.x += ball.velocityX;
   ball.y += ball.velocityY;
-  context.fillRect(ball.x, ball.y, ball.width, ball.height);
+  context.beginPath();
+  context.arc(ball.x, ball.y, ball.rad, 0, Math.PI * 2);
+  context.fill();
 
   //bar 맞는 위치에 따라 공 굴절 각도 달라짐짐
   if (topCollision(ball, player)) {
     console.log("paddle");
     // 공 중심 위치와 패들 왼쪽 위치 차이
-    let relativeIntersectX = ball.x + ball.width / 2 - player.x;
+    let relativeIntersectX = ball.x - player.x;
     let normalizedIntersectX = (relativeIntersectX / player.width) * 2 - 1; // -1 ~ 1 범위
 
     // 최대 X 속도 설정
@@ -263,7 +271,7 @@ function update(time = 0) {
     ball.velocityY = -speed * Math.cos(bounceAngle); // 위로 튕기니까 음수
   }
 
-  if (ball.y <= 0) {
+  if (ball.y - ball.rad <= 0) {
     // if ball touches top of canvas
     ball.y = ball.rad;
     ball.velocityY *= -1; //rev erse direction
@@ -445,7 +453,7 @@ function getCollisionDirection(ball, block) {
 function handleCollision(ball, block, collDirect) {
   switch (collDirect) {
     case "top":
-      ball.y = block.y - ball.height;
+      ball.y = block.y - ball.rad;
       ball.velocityY *= -1;
       break;
     case "bottom":
@@ -453,7 +461,7 @@ function handleCollision(ball, block, collDirect) {
       ball.velocityY *= -1;
       break;
     case "left":
-      ball.x = block.x - ball.width;
+      ball.x = block.x - ball.rad;
       ball.velocityX *= -1;
       break;
     case "right":
@@ -479,7 +487,7 @@ function bottomCollision(ball, block) {
 
 function leftCollision(ball, block) {
   //a is left of b (ball is left of block)
-  return detectCollision(ball, block) && ball.x + ball.width >= block.x;
+  return detectCollision(ball, block) && ball.x + ball.rad >= block.x;
 }
 
 function rightCollision(ball, block) {
