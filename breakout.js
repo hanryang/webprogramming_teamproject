@@ -360,3 +360,25 @@ class Enemy {
   }
 }
 
+class black_Enemy extends Enemy {
+  color() {
+    // black
+  }
+}
+
+class red_Enemy extends Enemy { // HP가 2이면 빨간색 HP가 1이면 검은색으로 변경
+  color() {
+    // red
+  }
+}
+
+class green_Enemy extends Enemy { // HP가 2이면 초록색 HP가 1이면 검은색으로 변경
+  color() {
+    // green
+  }
+
+  position_change() {
+    // 위치 변경
+  }
+}
+
