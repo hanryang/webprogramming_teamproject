@@ -119,7 +119,6 @@ $(document).ready(function () {
           }
         }, 1000); // 1초 간격으로 카운트다운
 
-      enemyAppear(); // enemy을 생성하는 역할
     });
 
     $("#setting").click(function() {
@@ -132,6 +131,12 @@ $(document).ready(function () {
 
 // Update 해줘야 할 것들 1. Enemy와 ball의 충돌 여부와 동시에 Enemy와 Player의 충돌 여부 2. Enemy의 내려옴 구현
 function update() {
+
+    if (enemyCount == 0) {
+        enemyRows = Math.min(enemyRows + 1, enemyMaxRows);
+        createenemys();
+    }
+
     requestAnimationFrame(update);
     //stop drawing
     if (gameOver) {
@@ -141,9 +146,10 @@ function update() {
     context.clearRect(0, 0, board.width, board.height);
 
     // player 그리기
-
+    context.beginPath();
     context.fillStyle = "lightgreen";
     context.fillRect(player.x, player.y, player.width, player.height);
+    context.closePath();
 
     // ball 그리기
     context.beginPath();
@@ -153,6 +159,9 @@ function update() {
     context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
     context.fill();
     context.closePath();
+
+    // for 문을 이용해서 10마리 정도의 enemy를 각각 생성해서 출력하게 제작
+    enemyDraw();
 
     //bounce the ball off player paddle
     if (topCollision(ball, player) || bottomCollision(ball, player)) {
@@ -175,15 +184,6 @@ function update() {
         context.font = "20px sans-serif";
         context.fillText("Game Over: Press 'Space' to Restart", 80, 400);
         gameOver = true;
-    }
-
-    enemyDraw();
-
-    //next level
-    if (enemyCount == 0) {
-        score +=  100 * enemyRows * enemyColumns; //bonus points :)
-        enemyRows = Math.min(enemyRows + 1, enemyMaxRows);
-        createenemys();
     }
 
     //score
@@ -262,57 +262,75 @@ function rightCollision(ball, enemy) { //a is right of b (ball is right of enemy
 }
 
 
-function enemyAppear() {
-  createenemys();
+// 무작위 enemy를 만들어 배열에 저장해두는 함수이다. 배열에는 각 enemy 객체를 집어넣었다.
+function createenemys() {
+    enemyArray = []; // clear enemyArray
 
+    // 0~10개의 적을 무작위로 생성
+    enemyCount = Math.floor(Math.random() * 11); // 0~10
 
-}
-function createenemys() { // 이 부분에서 난수로 0~10(?)개 정도 난수로 뽑아서 열로 내려오는 것을 구현하면 될 것 같습니다.
-    enemyArray = []; //clear enemyArray
-    for (let c = 0; c < enemyColumns; c++) {
-        for (let r = 0; r < enemyRows; r++) {
-            let x = enemyX + c * enemyWidth + c * 100; // c * 10 의 공간을 둔다. colum
-            let y = enemyY + r*enemyHeight + r*20 // r * 10 의 공간을 둔다. rows
-            let enemy = new Enemy(1, x, y, enemyVelocitX, enemyVelocitY);
-            // let enemy = {
-            //     x : enemyX + c*enemyWidth + c*10, //c*10 space 10 pixels apart columns
-            //     y : enemyY + r*enemyHeight + r*10, //r*10 space 10 pixels apart rows
-            //     width : enemyWidth,
-            //     height : enemyHeight,
-            //     break : false
-            // }
-            enemyArray.push(enemy);
+    for (let i = 0; i < enemyCount; i++) {
+        // 열 위치는 무작위로 지정 (가로 위치)
+        const c = Math.floor(Math.random() * enemyColumns); // 열 인덱스
+        const x = enemyX + c * enemyWidth + c * 100;
+        const y = enemyY; // 처음엔 상단에서 시작
+
+        // 확률에 따라 색상 및 HP 결정
+        const rand = Math.random();
+        let enemy;
+
+        if (rand < 0.90) { // 5% 확률: 초록색
+            enemy = new green_Enemy(2, x, y, enemyVelocitX, enemyVelocitY);
+            enemy.color();
+        } else if (rand < 0.95) { // 다음 25% 확률: 빨간색
+            enemy = new red_Enemy(2, x, y, enemyVelocitX, enemyVelocitY);
+            enemy.color();
+        } else { // 나머지 70% 확률: 검정색
+            enemy = new black_Enemy(1, x, y, enemyVelocitX, enemyVelocitY);
+            enemy.color();
         }
+
+        enemyArray.push(enemy);
     }
+
+    // 총 적 수 저장
     enemyCount = enemyArray.length;
 }
 
 
-
+// enemyArray에 있는 적들을 그리는 함수이다. 만약에 HP가 0일 경우 더이상 그리지 않는다.
 function enemyDraw() {
     for (let i = 0; i < enemyArray.length; i++) {
         let enemy = enemyArray[i];
+
         if (enemy.HP > 0) {
             // 충돌 판정
+            let wasHit = false;
+
             if (topCollision(ball, enemy) || bottomCollision(ball, enemy)) {
-                enemy.HP -= 1;
                 ball.velocityY *= -1;
-                score += 100;
-                enemyCount -= 1;
-            } else if (leftCollision(ball, enemy) || rightCollision(ball, enemy)) {
                 enemy.HP -= 1;
-                ball.velocityX *= -1;
                 score += 100;
-                enemyCount -= 1;
+                wasHit = true;
+            } else if (leftCollision(ball, enemy) || rightCollision(ball, enemy)) {
+                ball.velocityX *= -1;
+                enemy.HP -= 1;
+                score += 100;
+                wasHit = true;
             }
 
-            // 그리기
-            context.fillStyle = "skyblue";
-            context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            // HP가 줄었을 경우에만 색 갱신
+            if (wasHit) {
+                if (enemy instanceof green_Enemy) {
+                  enemy.position_change();
+                }
+                if (enemy.color) enemy.color();
+                if (enemy.HP === 0) enemyCount -= 1;
+            }
 
-            // 이동 처리
-            enemy.x += enemy.velocityX;
-            enemy.y += enemy.velocityY;
+            // 그리기 및 이동
+            enemy.draw(context);
+            enemy.update(); // x/y 이동
         }
     }
 }
@@ -340,45 +358,84 @@ function resetGame() { // 게임 초기화
     createenemys();
 }
 
+// Enemy 
 class Enemy {
+
+  // 생성자
   constructor(HP, x, y, velocityX, velocityY) {
     this.HP = HP;
-    this.x = x; // 이름 수정
-    this.y = y; // 이름 수정
+    this.x = x;
+    this.y = y;
     this.width = enemyWidth;
     this.height = enemyHeight;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
+    this.colorValue; // 기본 색상
   }
 
+  update() {
+    this.x += this.velocityX;
+    this.y += this.velocityY;
+  }
+
+  // 내려가는 메소드
   move_down() {
     this.y += this.velocityY;
   }
 
+  // 죽는 메소드
   die() {
     return this.HP <= 0;
   }
+
+  // enemy를 그리는 메소드
+  draw(context) {
+    context.beginPath();
+    context.fillStyle = this.colorValue;
+    context.fillRect(this.x, this.y, this.width, this.height);
+    context.closePath();
+  }
 }
 
+// 목숨이 하나인 적
 class black_Enemy extends Enemy {
   color() {
-    // black
+    this.colorValue = "white";
   }
 }
 
-class red_Enemy extends Enemy { // HP가 2이면 빨간색 HP가 1이면 검은색으로 변경
+// 목숨이 2개인 적
+class red_Enemy extends Enemy {
   color() {
-    // red
+    if (this.HP === 2) {
+      this.colorValue = "red";
+    } else if (this.HP === 1) {
+      this.colorValue = "white";
+    }
   }
 }
 
-class green_Enemy extends Enemy { // HP가 2이면 초록색 HP가 1이면 검은색으로 변경
+class green_Enemy extends Enemy {
   color() {
-    // green
+    if (this.HP === 2) {
+      this.colorValue = "green";
+    } else if (this.HP === 1) {
+      this.colorValue = "white";
+    }
   }
 
-  position_change() {
-    // 위치 변경
+position_change() {
+  // 가로 방향으로만 랜덤 이동
+  const direction = Math.random() < 0.5 ? -200 : 200;
+  this.x += direction;
+
+  // 화면 가로 경계를 벗어나지 않도록 제한 (0 ~ boardWidth 범위 내)
+  if (this.x < 0) {
+    this.x = 0;
   }
+  if (this.x + this.width > boardWidth) {
+    this.x = boardWidth - this.width;
+  }
+}
 }
 
