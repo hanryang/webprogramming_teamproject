@@ -4,7 +4,30 @@ body {
     display: flex;
     justify-content: center; /* 수평 중앙 정렬 */
     align-items: center;     /* 수직 중앙 정렬 */
-    background-color: #f0f0f0;
+    background-color: black;
+}
+
+#start_menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#start_menu button {
+  display: block;
+}
+
+#level_select_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#level_select_menu button {
+  display: block;
 }
 
 /* 캔버스와 버튼을 담은 전체 컨테이너 */
@@ -16,13 +39,20 @@ body {
 
 /* 캔버스 스타일 */
 #board {
-    width: 100%;
-    height: 100%;
-    justify-content: center; /* 수평 중앙 정렬 */
-    background-color: black;
-    border-top: 5px solid skyblue;
-    border-left: 5px solid skyblue;
-    border-right: 5px solid skyblue;
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: black;
+  border-top: 5px solid skyblue;
+  border-left: 5px solid skyblue;
+  border-right: 5px solid skyblue;
+}
+
+.hover {
+  background-color: black;
+  color: white;
 }
 
 #game_ui {

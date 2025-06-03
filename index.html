@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport", content="width=device-width, initial-scale=1.0">
-        <title>Breakout</title>
-        <link rel="stylesheet" href="breakout.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="breakout.js"></script>
-    </head>
-    <body>
-        <div id="game-container">
-            <canvas id="board"></canvas>
-            <div id="game_ui">
-                <button id="game_start">게임 시작</button>
-                <button id="settings">환경 설정</button>
-            </div>
-      </div>
-    </body>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" , content="width=device-width, initial-scale=1.0" />
+    <title>Breakout</title>
+    <link rel="stylesheet" href="breakout.css" />
+    <script src="breakout.js"></script>
+  </head>
+
+  <body>
+    <div id="start_menu">
+      <button id="game_start">게임 시작</button>
+      <button id="level_select">난이도 선택</button>
+      <button id="setting">환경 설정</button>
+    </div>
+    <div id="level_select_menu">
+      <button id="lev_1">Level 1</button>
+      <button id="lev_2">Level 2</button>
+      <button id="lev_3">Level 3</button>
+      <button id="return">돌아가기</button>
+    </div>
+    <canvas id="board"></canvas>
+  </body>
 </html>
