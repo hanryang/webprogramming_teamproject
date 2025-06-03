@@ -610,6 +610,7 @@ function enemyDraw() {
   }
 }
 
+// 충돌 감지 코드
 function detectCollision(ball, block) {
   const distX = Math.abs(ball.x - (block.x + block.width / 2));
   const distY = Math.abs(ball.y - (block.y + block.height / 2));
@@ -627,6 +628,7 @@ function detectCollision(ball, block) {
   return dx * dx + dy * dy <= ball.rad * ball.rad;
 }
 
+// 충돌 위치 감지 코드
 function getCollisionDirection(ball, block) {
   const distTop = Math.abs(ball.y + ball.rad - block.y); // 위에서 블럭 위에 닿음
   const distBottom = Math.abs(block.y + block.height - (ball.y - ball.rad)); // 아래에서 블럭 아래에 닿음
@@ -643,6 +645,7 @@ function getCollisionDirection(ball, block) {
   return "unknown";
 }
 
+// 충돌 처리 함수
 function handleCollision(ball, block, collDirect) {
   switch (collDirect) {
     case "top":
@@ -664,6 +667,7 @@ function handleCollision(ball, block, collDirect) {
   }
 }
 
+//#region 충돌 방향에 따른 충돌 처리 함수들
 function topCollision(ball, block) {
   //a is above b (ball is above block)
   return (
@@ -687,6 +691,9 @@ function rightCollision(ball, block) {
   //a is right of b (ball is right of block)
   return detectCollision(ball, block) && block.x + block.width >= ball.x;
 }
+
+//#endregion
+
 
 // 13*12
 const patterns = [
@@ -731,17 +738,36 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-        let block = {
-          break: false,
-          breaking: false,
-          alpha: 1.0,
-          row: r,
-          col: c,
-          x: 0,
-          y: 0,
-          width: blockWidth,
-          height: blockHeight,
-        };
+
+        // 이부분 수정
+        // let block = {
+        //   break: false,
+        //   breaking: false,
+        //   alpha: 1.0,
+        //   row: r,
+        //   col: c,
+        //   x: 0,
+        //   y: 0,
+        //   width: blockWidth,
+        //   height: blockHeight,
+        // };
+
+        //#region 변경 enemy 생성 수정
+        // 확률에 따라 색상 및 HP 결정
+        const rand = Math.random();
+        let block;
+
+        if (rand < 0.90) { // 5% 확률: 초록색
+          block = new green_Enemy(2, x, y, enemyVelocitX, enemyVelocitY);
+          block.color();
+        } else if (rand < 0.95) { // 다음 25% 확률: 빨간색
+          block = new red_Enemy(2, x, y, enemyVelocitX, enemyVelocitY);
+          block.color();
+        } else { // 나머지 70% 확률: 검정색
+          block = new black_Enemy(1, x, y, enemyVelocitX, enemyVelocitY);
+          block.color();
+        }
+        //#endregion
         blockArray.push(block);
         if (!block.break) {
           blockCount++;
@@ -887,6 +913,7 @@ class red_Enemy extends Enemy {
   }
 }
 
+// 목숨이 2개인 적 + 랜덤 이동
 class green_Enemy extends Enemy {
   color() {
     if (this.HP === 2) {
