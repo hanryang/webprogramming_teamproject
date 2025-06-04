@@ -345,7 +345,7 @@ function update(time = 0) {
 
   for (let block of blockArray) {
     // if (block.break || block.breaking) continue;
-    if (block.HP === 0) continue;
+    if (block.HP <= -1 || block.breaking) continue;
     if (block.row >= startRow) {
       if (detectCollision(ball, block)) {
         block.HP -= 1; // 충돌 시 HP 감소
@@ -358,7 +358,7 @@ function update(time = 0) {
           console.log(collDirect);
 
           handleCollision(ball, block, collDirect);
-          if (block.HP <= 0) {
+          if (block.HP == 0) {
             block.breaking = true;
             blockCount -= 1;
           }
@@ -463,77 +463,6 @@ function update(time = 0) {
 function outOfBounds(xPosition) {
   return xPosition < 0 || xPosition + player.width > boardWidth;
 }
-
-// 무작위 block을 만들어 배열에 저장해두는 함수이다. 배열에는 각 block 객체를 집어넣었다.
-function createblocks() {
-    blockArray = []; // clear blockArray
-
-    // 0~10개의 적을 무작위로 생성
-    blockCount = Math.floor(Math.random() * 11); // 0~10
-
-    for (let i = 0; i < blockCount; i++) {
-        // 열 위치는 무작위로 지정 (가로 위치)
-        const c = Math.floor(Math.random() * blockColumns); // 열 인덱스
-        const x = blockX + c * 50 + c * 100;
-        const y = blockY; // 처음엔 상단에서 시작
-
-        // 확률에 따라 색상 및 HP 결정
-        const rand = Math.random();
-        let block;
-
-        // if (rand < 0.90) { // 5% 확률: 초록색
-        //     block = new green_Enemy(2, 0, 0, 0, -1); // 목숨, x, y, 속도X, 속도Y
-        //     block.color();
-        // } else if (rand < 0.95) { // 다음 25% 확률: 빨간색
-        //     block = new red_Enemy(2, 0, 0, 0, -1);
-        //     block.color();
-        // } else { // 나머지 70% 확률: 검정색
-        //     block = new black_Enemy(1, 0, 0, -1, -1);
-        //     block.color();
-        // }
-
-        blockArray.push(block);
-    }
-
-    // 총 적 수 저장
-    blockCount = blockArray.length;
-}
-
-
-// blockArray에 있는 적들을 그리는 함수이다. 만약에 HP가 0일 경우 더이상 그리지 않는다.
-// function blockDraw() {
-//     for (let i = 0; i < blockArray.length; i++) {
-//         let block = blockArray[i];
-
-//         if (block.HP > 0) {
-//             // 충돌 판정
-//             let wasHit = false;
-
-//             if (topCollision(ball, block) || bottomCollision(ball, block)) {
-//                 ball.velocityY *= -1;
-//                 block.HP -= 1;
-//                 wasHit = true;
-//             } else if (leftCollision(ball, block) || rightCollision(ball, block)) {
-//                 ball.velocityX *= -1;
-//                 block.HP -= 1;
-//                 wasHit = true;
-//             }
-
-//             // HP가 줄었을 경우에만 색 갱신
-//             if (wasHit) {
-//                 if (block instanceof green_Enemy) {
-//                   block.position_change();
-//                 }
-//                 if (block.color) block.color();
-//                 if (block.HP === 0) blockCount -= 1;
-//             }
-
-//             // 그리기 및 이동
-//             block.draw(context);
-//             block.update(); // x/y 이동
-//           }
-//   }
-// }
 
 // 충돌 감지 코드
 function detectCollision(ball, block) {
@@ -749,14 +678,15 @@ function updateBlocks(deltaTime) {
 
   // 블록이 깨지는 애니메이션 처리
   for (let block of blockArray) {
-    // if (block.breaking) {
-    if (block.HP == 0) {
-      block.alpha -= 0.05;
-      if (block.alpha <= 0) {
-        block.alpha = 0;
-        block.breaking = false;
-        block.HP == -1; // 블록이 깨졌으므로 HP를 0으로 설정
+    if (block.breaking) {
+      // block.alpha -= 0.01;
+      // if (block.alpha <= 0) {
+      while (block.alpha > 0) {
+        block.alpha -= 0.05;
       }
+      block.alpha = 0;
+      block.breaking = false;
+      block.HP = -1; // 블록이 깨졌으므로 HP를 -1으로 설정
     }
 
 /*  
@@ -834,6 +764,7 @@ class Enemy {
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.colorValue; // 기본 색상
+    this.alpha = 1.0; // 블록의 투명도
   }
 
   update() {
