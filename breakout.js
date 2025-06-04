@@ -55,129 +55,6 @@ let timeLimit = 90; //90초
 let timeLeft;
 const gameOverLine = boardHeight - 80;
 
-// $(document).ready(function () {
-
-//     let ballspeed = 10; // 벡터의 크기 (속력)
-//     let angle = Math.random() * Math.PI; // 0 ~ 2π 범위의 무작위 각도 (라디안)
-//     let ballVelocityX = ballspeed * Math.cos(angle); // x 방향 성분
-//     let ballVelocityY = ballspeed * Math.sin(angle); // y 방향 성분
-
-//     ball.velocityX = ballVelocityX;
-//     ball.velocityY = ballVelocityY;
-
-//     board = document.getElementById("board");
-//     board.width = boardWidth;
-//     board.height = boardHeight;
-
-//     context = board.getContext("2d"); // used for drawing on the board
-
-//     // draw initial player
-//     context.fillStyle = "skyblue";
-//     context.fillRect(player.x, player.y, player.width, player.height);
-
-//     //     // 게임 시작 클릭 후 UI를 숨긴다
-//     //     $("#game_ui").hide();
-//     //     // 카운트다운 텍스트 생성 및 표시
-//     //     let countdown = 3;
-
-//     //     // 카운트 다운
-//     //     let countdownDiv = $("<div id='countdown'></div>").css({
-//     //         position: "absolute",
-//     //         top: "50%",
-//     //         left: "50%",
-//     //         transform: "translate(-50%, -50%)",
-//     //         fontSize: "60px",
-//     //         fontWeight: "bold",
-//     //         color: "red",
-//     //         zIndex: 100
-//     //     }).text(countdown);
-
-//     //     // 카운트 다운 생성
-//     //     $("body").append(countdownDiv);
-
-//     //     // countdownInterval을 통해 3초간 게임을 시작하지 않고 기다린다.
-//     //     let countdownInterval = setInterval(function () {
-//     //       countdown--;
-//     //       if (countdown > 0) {
-//     //           $("#countdown").text(countdown);
-//     //       } else {
-//     //           clearInterval(countdownInterval);
-//     //           $("#countdown").remove();
-
-//     //           // ⏱ 3초 후에 게임 시작
-//     //           requestAnimationFrame(update);
-//     //           $(document).on("keydown", movePlayer);
-//     //       }
-//     //     }, 1000); // 1초 간격으로 카운트다운
-
-//     // });
-//     $("#setting").click(function() {
-//     })
-// });
-
-
-// Update 해줘야 할 것들 1. Enemy와 ball의 충돌 여부와 동시에 Enemy와 Player의 충돌 여부 2. Enemy의 내려옴 구현
-
-
-// function update() {
-
-//     if (blockCount == 0) {
-//         blockRows = Math.min(blockRows + 1, blockMaxRows);
-//         createblocks();
-//     }
-
-//     requestAnimationFrame(update);
-//     //stop drawing
-//     if (gameOver) {
-//         return;
-//     }
-//     // 그린 것 초기화
-//     context.clearRect(0, 0, board.width, board.height);
-
-//     // player 그리기
-//     context.beginPath();
-//     context.fillStyle = "lightgreen";
-//     context.fillRect(player.x, player.y, player.width, player.height);
-//     context.closePath();
-
-//     // ball 그리기
-//     context.beginPath();
-//     context.fillStyle = "white";
-//     ball.x += ball.velocityX;
-//     ball.y += ball.velocityY;
-//     context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-//     context.fill();
-//     context.closePath();
-
-//     // for 문을 이용해서 10마리 정도의 block를 각각 생성해서 출력하게 제작
-//     blockDraw();
-
-//     //bounce the ball off player paddle
-//     if (topCollision(ball, player) || bottomCollision(ball, player)) {
-//         ball.velocityY *= -1;   // flip y direction up or down
-//     }
-//     else if (leftCollision(ball, player) || rightCollision(ball, player)) {
-//         ball.velocityX *= -1;   // flip x direction left or right
-//     }
-
-//     if (ball.y <= 0) { 
-//         // if ball touches top of canvas
-//         ball.velocityY *= -1; //reverse direction
-//     }
-//     else if (ball.x <= 0 || (ball.x + ball.radius >= boardWidth)) {
-//         // if ball touches left or right of canvas
-//         ball.velocityX *= -1; //reverse direction
-//     }
-//     else if (ball.y + ball.radius >= boardHeight) {
-//         // if ball touches bottom of canvas
-//         context.font = "20px sans-serif";
-//         context.fillText("Game Over: Press 'Space' to Restart", 80, 400);
-//         gameOver = true;
-//     }
-//   }
-
-    //score
-
 let isAnimationRunning = false;
 let score = 0;
 let leftTimeToScore;
@@ -584,7 +461,7 @@ function outOfBounds(xPosition) {
   return xPosition < 0 || xPosition + player.width > boardWidth;
 }
 
-// 무작위 block를 만들어 배열에 저장해두는 함수이다. 배열에는 각 block 객체를 집어넣었다.
+// 무작위 block을 만들어 배열에 저장해두는 함수이다. 배열에는 각 block 객체를 집어넣었다.
 function createblocks() {
     blockArray = []; // clear blockArray
 
@@ -744,7 +621,15 @@ function rightCollision(ball, block) {
 const patterns = [
   //level1
   [
-    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
   ],
   //level2
   [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
@@ -860,7 +745,7 @@ function updateBlocks(deltaTime) {
     if (block.HP == 0) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
-      block.x = blockX + block.col * (block.width + 2);
+      block.x = blockX + block.col * (block.width + 2);;
       block.y = blockY + visibleRowIndex * (block.height + 2);
 
       context.globalAlpha = block.alpha ?? 1.0;
@@ -981,16 +866,23 @@ class green_Enemy extends Enemy {
   }
 
   position_change() {
-    // 가로 방향으로만 랜덤 이동
-    const direction = Math.random() < 0.5 ? -200 : 200;
-    this.x += direction;
-
-    // 화면 가로 경계를 벗어나지 않도록 제한 (0 ~ boardWidth 범위 내)
-    if (this.x < 0) {
-      this.x = 0;
+    // 현재 행(row)에서 pattern의 값이 0인 열(col)만 추출
+    const currentPattern = patterns[level - 1][this.row];
+    const emptyCols = [];
+    for (let col = 0; col < currentPattern.length; col++) {
+      if (currentPattern[col] === 0) {
+        emptyCols.push(col);
+      }
     }
-    if (this.x + this.width > boardWidth) {
-      this.x = boardWidth - this.width;
+
+    // 빈 칸이 있다면 그 중 하나로 이동
+    if (emptyCols.length > 0) {
+      const randomCol = emptyCols[Math.floor(Math.random() * emptyCols.length)];
+      this.col = randomCol;
+      this.x = blockX + this.col * (this.width + 2);
+    } else {
+      // 빈 칸이 없다면 현재 위치를 유지
+      this.HP = 0;
     }
   }
 }
