@@ -349,6 +349,9 @@ function update(time = 0) {
     if (block.row >= startRow) {
       if (detectCollision(ball, block)) {
         block.HP -= 1; // 충돌 시 HP 감소
+        if (block.colorValue == "green") {
+          block.position_change(); // 초록색 블록은 위치 변경
+        }
         block.color(); // 색상 업데이트
         let collDirect = getCollisionDirection(ball, block);
         if (collDirect) {
@@ -879,7 +882,8 @@ class green_Enemy extends Enemy {
     if (emptyCols.length > 0) {
       const randomCol = emptyCols[Math.floor(Math.random() * emptyCols.length)];
       this.col = randomCol;
-      this.x = blockX + this.col * (this.width + 2);
+      // this.x = blockX + this.col * (this.width + 2);
+      this.x = this.col;
     } else {
       // 빈 칸이 없다면 현재 위치를 유지
       this.HP = 0;
