@@ -678,15 +678,15 @@ function updateBlocks(deltaTime) {
 
   // 블록이 깨지는 애니메이션 처리
   for (let block of blockArray) {
-    if (block.breaking) {
+    if (block.HP === 0 && block.breaking) {
       // block.alpha -= 0.01;
       // if (block.alpha <= 0) {
-      while (block.alpha > 0) {
-        block.alpha -= 0.05;
+      block.alpha -= 0.05;
+      if (block.alpha <= 0) {
+        block.alpha = 0;
+        block.breaking = false;
+        block.HP = -1; // 블록이 깨졌으므로 HP를 -1으로 설정
       }
-      block.alpha = 0;
-      block.breaking = false;
-      block.HP = -1; // 블록이 깨졌으므로 HP를 -1으로 설정
     }
 
 /*  
@@ -695,7 +695,7 @@ function updateBlocks(deltaTime) {
     score = 0;
     createblocks();
 */
-    if (block.HP == 0) continue;
+    if (block.HP == -1) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
       block.x = blockX + block.col * (block.width + 2);;
