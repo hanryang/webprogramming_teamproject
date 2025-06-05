@@ -205,6 +205,76 @@ window.onload = function () {
   document.addEventListener("keyup", (e) => {
     if (e.code in keys) keys[e.code] = false;
   });
+
+  // 환경 설정
+  const startMenu = document.getElementById("start_menu");
+  const settingsMenu = document.getElementById("settings_menu");
+  const btnSetting = document.getElementById("setting");
+
+  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
+  const panels = document.querySelectorAll("#settings_content .panel");
+
+  const musicForm = document.getElementById("music_form");
+  const ballForm = document.getElementById("ball_form");
+
+  btnSetting.addEventListener("click", function () {
+    // 메인 메뉴 숨기기
+    startMenu.style.display = "none";
+    // 설정 메뉴 보이기
+    settingsMenu.style.display = "flex";
+  });
+
+  // 네비게이션 아이템 클릭
+  settingsNavItems.forEach((navItem) => {
+    navItem.addEventListener("click", function () {
+      const targetPanel = navItem.getAttribute("data-panel");
+
+      // (1) 모든 nav-item에서 active 클래스 제거
+      settingsNavItems.forEach((ni) => ni.classList.remove("active"));
+      // (2) 클릭된 항목에만 active 클래스 추가
+      navItem.classList.add("active");
+
+      // (3) 모든 패널 숨기기
+      panels.forEach((panel) => panel.classList.add("hidden"));
+
+      // (4) “Back”이 클릭된 경우 → 설정 레이어 닫고 메인 메뉴로 복귀
+      if (targetPanel === "back_panel") {
+        setTimeout(() => {
+          settingsMenu.style.display = "none";
+          startMenu.style.display = "block";
+        }, 100);
+      }
+      // (5) 그 외 패널이면 해당 패널만 보여주기
+      else {
+        document.getElementById(targetPanel).classList.remove("hidden");
+      }
+    });
+  });
+
+  // 초기화면 #Music이 선택된 상태
+  document.querySelector("#settings_nav .nav-item").classList.add("active");
+  // (2) 모든 패널 숨기기
+  panels.forEach((p) => p.classList.add("hidden"));
+  // (3) music_panel만 보이기
+  document.getElementById("music_panel").classList.remove("hidden");
+
+  let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
+  musicForm.addEventListener("change", (e) => {
+    if (e.target.name === "music") {
+      selectedMusic = e.target.value;
+      console.log("선택된 Music:", selectedMusic);
+      // TODO: 실제 배경음악 재생/정지 로직을 여기에 추가
+    }
+  });
+
+  let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
+  ballForm.addEventListener("change", (e) => {
+    if (e.target.name === "ball") {
+      selectedBall = e.target.value;
+      console.log("선택된 Ball:", selectedBall);
+      // TODO: 실제 공 크기/속성 변경 로직을 여기에 추가
+    }
+  });
 };
 
 //캔버스 화질 개선

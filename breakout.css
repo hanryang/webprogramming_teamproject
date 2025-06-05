@@ -84,3 +84,118 @@ body {
     cursor: pointer;
     z-index: 10;
 }
+
+#settings_menu{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 800px;  
+  height: 600px;  
+  transform: translate(-50%, -50%);
+  background-color: #828181; 
+  background-image: url("image/setting.png");
+  background-size: 518.11px 223.12px;
+  background-repeat: no-repeat;
+  background-position: 0 15px;
+  border: 4px solid #fff;    
+  z-index: 50;       
+  display: flex;
+  overflow: hidden;
+}
+
+
+#settings_nav{
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 285px;
+  padding-left: 78px;
+}
+  
+#settings_nav ul{
+  list-style: none;
+  padding: 0;
+}
+
+#settings_nav .nav-item{
+  cursor: pointer;
+}
+
+#settings_nav .nav-item img{
+  width: 291px;
+  height: 68px;
+  user-select: none;
+}
+
+#settings_nav .nav-item:hover img,
+#settings_nav .nav-item.active img{
+  filter: brightness(1.2);
+}
+
+#settings_content{
+  flex: 1;
+  position: relative;
+  padding: 40px;
+  color: black;
+  font-family: "Arial", sans-serif;
+}
+
+.panel{
+  position: absolute;
+  top: 265px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("image/set-textbox.png");
+  background-size: 350px 300px;
+  background-repeat: no-repeat;
+
+
+}
+
+.hidden{
+  display: none;
+}
+
+.panel h2{
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #000; /* 검은색 */
+
+}
+
+.radio-label{
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 48px;
+  cursor: pointer;
+  position: relative;
+}
+
+.radio-label input[type="radio"]{
+  position: absolute;
+  opacity: 0;
+  cursor: pointer; 
+  width: 0;
+  height: 0;
+}
+
+.radio-label .radio-custom{
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url("image/Rectangle 151.png"); /* 비어있는 상태 */
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-right: 10px;
+}
+
+.radio-label input[type="radio"]:checked~ .radio-custom{
+  background-image: url('image/Rectangle 152.png');
+}
+
+.radio-label span + span{
+  margin-left: 6px;
+}
