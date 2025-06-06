@@ -29,6 +29,69 @@
 
       <div id="return">&lt;BACK</div>
     </div>
+    <div id="settings_menu">
+      <nav id="settings_nav">
+        <ul>
+          <li data-panel="music_panel" class="nav-item active">
+            <img src="image/button.png" alt="Music" />
+          </li>
+          <li data-panel="ball_panel" class="nav-item">
+            <img src="image/button.png" alt="Ball" />
+          </li>
+          <li data-panel="back" class="nav-item">
+            <img src="image/button.png" alt="Back" />
+          </li>
+        </ul>
+      </nav>
+    
+      <div id="settings_content">
+        <section id="music_panel" class="panel">
+          <h2># Music</h2>
+          <form id="music_form">
+            <label class="radio-label">
+              <input type="radio" name="music" value="music1" checked />
+              <span class="radio-custom"></span>
+              Music 1
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="music" value="music2" checked />
+              <span class="radio-custom"></span>
+              Music 2
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="music" value="music3" checked />
+              <span class="radio-custom"></span>
+              Music 3
+            </label>
+          </form>
+        </section>
+
+        <section id="ball_panel" class="panel hidden">
+          <h2># Ball</h2>
+          <form id="ball_form">
+            <label class="radio-label">
+              <input type="radio" name="ball" value="small">
+              <span class="radio-custom"></span>
+              점수 x1.5
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ball" value="medium">
+              <span class="radio-custom"></span>
+              점수 x1
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ball" value="large">
+              <span class="radio-custom"></span>
+              점수 x0.5
+            </label>
+          </form>
+        </section>
+
+        <section id="back" class="panel hidden">
+          <h2>&gt; Back</h2>
+        </section>
+      </div>
+    </div>
     <canvas id="board"></canvas>
   </body>
 </html>
