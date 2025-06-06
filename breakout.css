@@ -16,6 +16,7 @@ body {
   justify-content: center; /* 수평 중앙 정렬 */
   align-items: center; /* 수직 중앙 정렬 */
   background-color: black;
+  overflow: hidden;
 }
 
 #start_menu {
@@ -66,6 +67,10 @@ body {
   padding: 0;
   margin: 10px 0;
   cursor: pointer;
+}
+
+#start_menu button:hover {
+  filter: brightness(1.5);
 }
 
 #start_menu button img {
@@ -127,6 +132,10 @@ body {
   margin: 0;
   cursor: pointer;
   display: inline-block;
+}
+
+#level_select_menu button:hover {
+  filter: brightness(1.1);
 }
 
 #level_select_menu button img {
@@ -198,4 +207,42 @@ body {
   font-size: 16px;
   cursor: pointer;
   z-index: 10;
+}
+
+#gameover_screen {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOver.png");
+  background-size: cover;
+}
+
+#gameover_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOverMenu.png");
+  background-size: cover;
+}
+
+#revenge {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#revenge:hover,
+#revenge:active {
+  filter: contrast(1.8);
 }

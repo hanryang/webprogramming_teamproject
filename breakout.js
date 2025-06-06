@@ -5,9 +5,13 @@ const boardHeight = 600;
 let context;
 
 //players
-let playerWidth = 200; //500 for testing, 80 normal
-let playerHeight = 10;
+let playerWidth = 180; //500 for testing, 80 normal
+let playerHeight = 25;
 let playerVelocityX = 10; //프레임당 10px 이동
+
+//바 이미지 가져오기기
+const playerImg = new Image();
+playerImg.src = "./sources/gameBar.png";
 
 let player = {
   x: boardWidth / 2 - playerWidth / 2,
@@ -15,6 +19,7 @@ let player = {
   width: playerWidth,
   height: playerHeight,
   velocityX: playerVelocityX,
+  img: playerImg,
 };
 
 //ball
@@ -63,6 +68,8 @@ let leftTimetoScoreInit = false;
 let leftTimeToScoreHandled = false;
 let leftTimeToScoreStartTime;
 
+let storyMode = true;
+
 const levelSettings = [
   {
     ballVelocityX: 0,
@@ -98,6 +105,9 @@ window.onload = function () {
   level1 = document.getElementById("lev_1");
   level2 = document.getElementById("lev_2");
   level3 = document.getElementById("lev_3");
+  gameOverImg = document.getElementById("gameover_screen");
+  gameOverMenu = document.getElementById("gameover_menu");
+  revenge = document.getElementById("revenge");
 
   returnB = document.getElementById("return");
   board = document.getElementById("board");
@@ -111,6 +121,7 @@ window.onload = function () {
     // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
     startMenu.style.display = "none";
     board.style.display = "block";
+    storyMode = true;
     level = 1;
     score = 0;
 
@@ -136,7 +147,10 @@ window.onload = function () {
 
       if (countdown > 0) {
         // 2 → 1 → 0 이미지로 교체
-        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        $("#countdown-img").attr(
+          "src",
+          `./sources/background/${countdown}.png`
+        );
       } else {
         clearInterval(countdownInterval);
         $("#countdown-img").remove();
@@ -159,6 +173,7 @@ window.onload = function () {
     board.style.display = "block";
     level = 1;
     score = 0;
+    storyMode = false;
     resetGame();
   };
   level2.onclick = function () {
@@ -166,6 +181,7 @@ window.onload = function () {
     board.style.display = "block";
     level = 2;
     score = 0;
+    storyMode = false;
     resetGame();
   };
   level3.onclick = function () {
@@ -173,6 +189,13 @@ window.onload = function () {
     board.style.display = "block";
     level = 3;
     score = 0;
+    storyMode = false;
+    resetGame();
+  };
+  revenge.onclick = () => {
+    storyMode = true;
+    gameOverMenu.style.display = "none";
+    board.style.display = "block";
     resetGame();
   };
 
@@ -184,7 +207,7 @@ window.onload = function () {
   document.addEventListener("keydown", (e) => {
     if (e.code in keys) keys[e.code] = true;
 
-    if (gameOver && e.code === "Space") {
+    if (gameOver && e.code === "Space" && !storyMode) {
       resetGame();
     }
     if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
@@ -242,15 +265,25 @@ function update(time = 0) {
 
   // 만약 게임이 끝났다면...
   if (gameOver) {
-    context.fillStyle = "lightBlue";
-    context.font = "20px 'DOSIyagiMedium'";
-    context.textAlign = "center";
-    context.fillText(
-      "Game Over: Press 'Space' to Restart",
-      boardWidth / 2,
-      400
-    );
-    context.textAlign = "left";
+    isAnimationRunning = false;
+    if (storyMode) {
+      board.style.display = "none";
+      gameOverImg.style.display = "block";
+      setTimeout(() => {
+        gameOverImg.style.display = "none";
+        gameOverMenu.style.display = "block";
+      }, 2000);
+    } else {
+      context.fillStyle = "lightBlue";
+      context.font = "25px 'DOSIyagiMedium'";
+      context.textAlign = "center";
+      context.fillText(
+        "Game Over: Press 'Space' to Restart",
+        boardWidth / 2,
+        400
+      );
+      context.textAlign = "left";
+    }
     return;
   }
 
@@ -289,7 +322,13 @@ function update(time = 0) {
 
   // player
   context.fillStyle = "lightgreen";
-  context.fillRect(player.x, player.y, player.width, player.height);
+  context.drawImage(
+    player.img,
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  );
 
   // ball
   context.fillStyle = "white";
@@ -396,7 +435,7 @@ function update(time = 0) {
       levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
     } else {
       levelCompletedText =
-        "You completed every level!: Press 'Space' to go back to the Main Menu";
+        "You completed every level!: Press 'Space' to Continue";
     }
     //공, 바 못 움직이게
     ball.velocityX = 0;
@@ -425,7 +464,7 @@ function update(time = 0) {
       isAnimationRunning = false;
     }
 
-    //점수로 변환되는 시간 표시시
+    //점수로 변환되는 시간 표시
     let scoreMinutes = Math.floor(leftTimeToScore / 60);
     let scoreSeconds = Math.floor(leftTimeToScore % 60);
     let scoreTimeString = `${scoreMinutes}:${scoreSeconds
@@ -544,17 +583,18 @@ function rightCollision(ball, block) {
 // 13*12
 const patterns = [
   //level1
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-  ],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+  // ],
   //level2
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -599,7 +639,6 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-
         //#region 변경 block 생성 수정
         // 확률에 따라 색상 및 HP 결정
         const rand = Math.random();
