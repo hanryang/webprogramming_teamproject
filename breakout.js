@@ -207,15 +207,8 @@ window.onload = function () {
   });
 
   // 환경 설정
-  const startMenu = document.getElementById("start_menu");
   const settingsMenu = document.getElementById("settings_menu");
   const btnSetting = document.getElementById("setting");
-
-  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
-  const panels = document.querySelectorAll("#settings_content .panel");
-
-  const musicForm = document.getElementById("music_form");
-  const ballForm = document.getElementById("ball_form");
 
   btnSetting.addEventListener("click", function () {
     // 메인 메뉴 숨기기
@@ -223,6 +216,12 @@ window.onload = function () {
     // 설정 메뉴 보이기
     settingsMenu.style.display = "flex";
   });
+
+  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
+  const panels = document.querySelectorAll("#settings_content .panel");
+
+  const musicForm = document.getElementById("music_form");
+  const ballForm = document.getElementById("ball_form");
 
   // 네비게이션 아이템 클릭
   settingsNavItems.forEach((navItem) => {
@@ -238,7 +237,7 @@ window.onload = function () {
       panels.forEach((panel) => panel.classList.add("hidden"));
 
       // (4) “Back”이 클릭된 경우 → 설정 레이어 닫고 메인 메뉴로 복귀
-      if (targetPanel === "back_panel") {
+      if (targetPanel === "back") {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
@@ -251,11 +250,9 @@ window.onload = function () {
     });
   });
 
-  // 초기화면 #Music이 선택된 상태
-  document.querySelector("#settings_nav .nav-item").classList.add("active");
-  // (2) 모든 패널 숨기기
-  panels.forEach((p) => p.classList.add("hidden"));
-  // (3) music_panel만 보이기
+  settingsNavItems.forEach((ni)=> ni.classList.remove("active"));
+  settingsNavItems[0].classList.add("active");
+  panels.forEach((panel)=> panel.classList.add("hidden"));
   document.getElementById("music_panel").classList.remove("hidden");
 
   let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;

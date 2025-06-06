@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'DOSIyagiMedium';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 body {
     margin: 20;
     height: 100vh;
@@ -99,7 +107,7 @@ body {
   background-position: 0 15px;
   border: 4px solid #fff;    
   z-index: 50;       
-  display: flex;
+  display: none;
   overflow: hidden;
 }
 
@@ -119,26 +127,36 @@ body {
 }
 
 #settings_nav .nav-item{
-  cursor: pointer;
-}
-
-#settings_nav .nav-item img{
+  position: relative;
   width: 291px;
   height: 68px;
+
+  background-image: url("image/button.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  font-family: 'DOSIyagiMedium',sans-serif;
+  font-size: 48px;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
   user-select: none;
 }
 
-#settings_nav .nav-item:hover img,
-#settings_nav .nav-item.active img{
+#settings_nav .nav-item:hover,
+#settings_nav .nav-item.active{
   filter: brightness(1.2);
 }
 
 #settings_content{
   flex: 1;
   position: relative;
-  padding: 40px;
+  padding: 50px;
   color: black;
-  font-family: "Arial", sans-serif;
+  font-family: "DOSIyagiMedium", sans-serif;
 }
 
 .panel{
@@ -151,7 +169,6 @@ body {
   background-size: 350px 300px;
   background-repeat: no-repeat;
 
-
 }
 
 .hidden{
@@ -160,15 +177,17 @@ body {
 
 .panel h2{
   font-size: 48px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  padding-left: 50px;
   color: #000; /* 검은색 */
-
+  font-family: 'DOSIyagiMedium';
 }
 
 .radio-label{
   display: flex;
+  padding-left: 50px;
   align-items: center;
-  margin-bottom: 16px;
+
   font-size: 48px;
   cursor: pointer;
   position: relative;
@@ -184,8 +203,8 @@ body {
 
 .radio-label .radio-custom{
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   background-image: url("image/Rectangle 151.png"); /* 비어있는 상태 */
   background-size: contain;
   background-repeat: no-repeat;
