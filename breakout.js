@@ -7,7 +7,7 @@ let context;
 //players
 let playerWidth = 200; //500 for testing, 80 normal
 let playerHeight = 10;
-let playerVelocityX = 5; //프레임당 10px 이동
+let playerVelocityX = 10; //프레임당 10px 이동
 
 let player = {
   x: boardWidth / 2 - playerWidth / 2,
@@ -66,19 +66,19 @@ let leftTimeToScoreStartTime;
 const levelSettings = [
   {
     ballVelocityX: 0,
-    ballVelocityY: 5,
+    ballVelocityY: 10,
     playerWidth: 250,
     timeLimit: 90,
   },
   {
     ballVelocityX: 0,
-    ballVelocityY: 6,
+    ballVelocityY: 10,
     playerWidth: 200,
     timeLimit: 80,
   },
   {
     ballVelocityX: 0,
-    ballVelocityY: 7,
+    ballVelocityY: 10,
     playerWidth: 150,
     timeLimit: 70,
   },

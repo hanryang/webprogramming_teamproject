@@ -12,9 +12,56 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+
+  display: flex;
+  /* 💡 핵심 추가 */
+  flex-direction: column;
+  align-items: center;
+  /* 수평 중앙 정렬 */
+  justify-content: center;
+  /* 수직 중앙 정렬 */
+
+  background-image: url('./sources/background/mainScreen.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+}
+
+.button-position-anchor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#button-wrapper {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #start_menu button {
+  display: block;
+
+
+  background: none;
+    border: none;
+    padding: 0;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+#start_menu button img {
+  width: 200px;
+  /* 필요에 따라 크기 조절 */
+  height: auto;
   display: block;
 }
 
