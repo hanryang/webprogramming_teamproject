@@ -6,16 +6,24 @@
 }
 
 body {
-    margin: 20;
+    margin: 0;
     height: 100vh;
     display: flex;
     justify-content: center; /* 수평 중앙 정렬 */
     align-items: center;     /* 수직 중앙 정렬 */
-    background-color: black;
+    background-color:  #3D3D3D;
 }
 
+/* 게임 시작 화면 컨테이너 */
 #start_menu {
+  width: 800px;
+  height: 600px;
+  background-color: #202020;
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -31,11 +39,6 @@ body {
   justify-content: center;
   /* 수직 중앙 정렬 */
 
-  background-image: url('./sources/background/mainScreen.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 10px;
 }
 
 .button-position-anchor {
@@ -54,15 +57,27 @@ body {
   align-items: center;
 }
 
-#start_menu button {
-  display: block;
+/* 타이틀 이미지 */
+#logo {
+  width: auto;
+  height: 300px;
+  margin-bottom: 40px;
+  margin-top: 10px;
+}
 
+/* 버튼 박스 */
+#button-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
 
-  background: none;
-    border: none;
-    padding: 0;
-    margin: 10px 0;
-    cursor: pointer;
+/* 버튼 이미지 스타일 */
+.menu-btn {
+  cursor: pointer;
+  width: 292px; /* 이미지 원본 크기 */
+  height: 68px;
 }
 
 #start_menu button img {
@@ -156,10 +171,10 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: black;
-  border-top: 5px solid skyblue;
+  background-color: #202020;
+  /* border-top: 5px solid skyblue;
   border-left: 5px solid skyblue;
-  border-right: 5px solid skyblue;
+  border-right: 5px solid skyblue; */
 }
 
 .hover {
@@ -183,12 +198,12 @@ body {
     border-radius: 10px;
 }
 
-#game_start {
+/* #game_start {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
     z-index: 10;
-}
+} */
 
 #settings {
     padding: 10px 20px;
