@@ -228,22 +228,22 @@ window.onload = function () {
     navItem.addEventListener("click", function () {
       const targetPanel = navItem.getAttribute("data-panel");
 
-      // (1) 모든 nav-item에서 active 클래스 제거
+      // 모든 nav-item에서 active 클래스 제거
       settingsNavItems.forEach((ni) => ni.classList.remove("active"));
-      // (2) 클릭된 항목에만 active 클래스 추가
+      // 클릭된 항목에만 active 클래스 추가
       navItem.classList.add("active");
 
-      // (3) 모든 패널 숨기기
+      // 모든 패널 숨기기
       panels.forEach((panel) => panel.classList.add("hidden"));
 
-      // (4) “Back”이 클릭된 경우 → 설정 레이어 닫고 메인 메뉴로 복귀
+      // “Back”이 클릭된 경우 → 설정 레이어 닫고 메인 메뉴로 복귀
       if (targetPanel === "back") {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
         }, 100);
       }
-      // (5) 그 외 패널이면 해당 패널만 보여주기
+      // 그 외 패널이면 해당 패널만 보여주기
       else {
         document.getElementById(targetPanel).classList.remove("hidden");
       }
@@ -272,6 +272,7 @@ window.onload = function () {
       // TODO: 실제 공 크기/속성 변경 로직을 여기에 추가
     }
   });
+
 };
 
 //캔버스 화질 개선

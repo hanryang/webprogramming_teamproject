@@ -5,26 +5,118 @@
   font-style: normal;
 }
 
-
 body {
-    margin: 20;
+    margin: 0;
     height: 100vh;
     display: flex;
     justify-content: center; /* 수평 중앙 정렬 */
     align-items: center;     /* 수직 중앙 정렬 */
-    background-color: black;
+    background-color:  #3D3D3D;
 }
 
+/* 게임 시작 화면 컨테이너 */
 #start_menu {
+  width: 800px;
+  height: 600px;
+  background-color: #202020;
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+
+  display: flex;
+  /* 💡 핵심 추가 */
+  flex-direction: column;
+  align-items: center;
+  /* 수평 중앙 정렬 */
+  justify-content: center;
+  /* 수직 중앙 정렬 */
+
+  background-image: url('./sources/background/mainScreen.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+}
+
+.button-position-anchor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#button-wrapper {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #start_menu button {
   display: block;
+
+
+  background: none;
+    border: none;
+    padding: 0;
+    margin: 10px 0;
+    cursor: pointer;
 }
+/* 타이틀 이미지 */
+#logo {
+  width: auto;
+  height: 300px;
+  margin-bottom: 40px;
+  margin-top: 10px;
+}
+
+/* 버튼 박스 */
+#button-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+
+/* 버튼 이미지 스타일 */
+.menu-btn {
+  cursor: pointer;
+  width: 292px; /* 이미지 원본 크기 */
+  height: 68px;
+}
+
+#start_menu button img {
+  width: 200px;
+  /* 필요에 따라 크기 조절 */
+  height: auto;
+  display: block;
+}
+
+/* #level_select_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+  background-image: url('');
+}
+
+#level_select_menu button {
+  display: block;
+} */
 
 #level_select_menu {
   display: none;
@@ -32,10 +124,52 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+#button-wrapper_level {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 120px;
 }
 
 #level_select_menu button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-block;
+}
+
+#level_select_menu button img {
   display: block;
+  width: 180px;
+  height: auto;
+}
+
+/* 왼쪽 아래 BACK 텍스트 */
+#return {
+  margin: 20px 0;
+  font-family: 'DOSIyagiMedium';
+  align-self: flex-start;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
 }
 
 /* 캔버스와 버튼을 담은 전체 컨테이너 */
@@ -52,10 +186,10 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: black;
-  border-top: 5px solid skyblue;
+  background-color: #202020;
+  /* border-top: 5px solid skyblue;
   border-left: 5px solid skyblue;
-  border-right: 5px solid skyblue;
+  border-right: 5px solid skyblue; */
 }
 
 .hover {
@@ -79,12 +213,12 @@ body {
     border-radius: 10px;
 }
 
-#game_start {
+/* #game_start {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
     z-index: 10;
-}
+} */
 
 #settings {
     padding: 10px 20px;
@@ -101,7 +235,7 @@ body {
   height: 600px;  
   transform: translate(-50%, -50%);
   background-color: #828181; 
-  background-image: url("image/setting.png");
+  background-image: url("sources/background/settingLogo.png");
   background-size: 518.11px 223.12px;
   background-repeat: no-repeat;
   background-position: 0 15px;
@@ -131,7 +265,7 @@ body {
   width: 291px;
   height: 68px;
 
-  background-image: url("image/button.png");
+  background-image: url("sources/button/setting-button.png");
   background-size: cover;
   background-repeat: no-repeat;
 
@@ -165,7 +299,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("image/set-textbox.png");
+  background-image: url("sources/background/panelFrame.png");
   background-size: 350px 300px;
   background-repeat: no-repeat;
 
@@ -205,14 +339,14 @@ body {
   display: inline-block;
   width: 10px;
   height: 10px;
-  background-image: url("image/Rectangle 151.png"); /* 비어있는 상태 */
+  background-image: url("sources/button/Rectangle 151.png"); /* 비어있는 상태 */
   background-size: contain;
   background-repeat: no-repeat;
   margin-right: 10px;
 }
 
 .radio-label input[type="radio"]:checked~ .radio-custom{
-  background-image: url('image/Rectangle 152.png');
+  background-image: url('sources/button/Rectangle 152.png');
 }
 
 .radio-label span + span{
