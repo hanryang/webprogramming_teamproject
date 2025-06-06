@@ -108,28 +108,29 @@ window.onload = function () {
   setupCanvas();
 
   start.onclick = function () {
-    
     // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
     startMenu.style.display = "none";
     board.style.display = "block";
     level = 1;
     score = 0;
-      // 게임 시작 클릭 후 UI를 숨긴다
-      // $("#game_ui").hide();
+    // 게임 시작 클릭 후 UI를 숨긴다
+    // $("#game_ui").hide();
     // 카운트다운 텍스트 생성 및 표시
     let countdown = 3;
 
     // 카운트 다운
-    let countdownDiv = $("<div id='countdown'></div>").css({
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      fontSize: "60px",
-      fontWeight: "bold",
-      color: "red",
-      zIndex: 100
-    }).text(countdown);
+    let countdownDiv = $("<div id='countdown'></div>")
+      .css({
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        fontSize: "60px",
+        fontWeight: "bold",
+        color: "red",
+        zIndex: 100,
+      })
+      .text(countdown);
 
     // 카운트 다운 생성
     $("body").append(countdownDiv);
@@ -155,7 +156,8 @@ window.onload = function () {
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
 
-    levelSelectMenu.style.backgroundImage = "url('./sources/background/stageSelect.png')";
+    levelSelectMenu.style.backgroundImage =
+      "url('./sources/background/stageSelect.png')";
   };
   level1.onclick = function () {
     levelSelectMenu.style.display = "none";
@@ -229,7 +231,6 @@ function setupCanvas() {
 let lastTime = 0;
 
 function update(time = 0) {
-
   // 아마 일시정지 구현을 위한 처리라고 생각이 든다.
   if (!isAnimationRunning) {
     console.log("animation stopping");
@@ -247,7 +248,7 @@ function update(time = 0) {
   // 만약 게임이 끝났다면...
   if (gameOver) {
     context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
+    context.font = "20px 'DOSIyagiMedium'";
     context.textAlign = "center";
     context.fillText(
       "Game Over: Press 'Space' to Restart",
@@ -267,7 +268,6 @@ function update(time = 0) {
   context.moveTo(0, gameOverLine);
   context.lineTo(boardWidth, gameOverLine);
   context.stroke();
-
 
   //check time limit
   if (!gameOver && !levelCompleted) {
@@ -370,8 +370,8 @@ function update(time = 0) {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = Math.floor(timeLeft % 60);
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  context.font = "20px sans-serif";
-  context.fillText(`time left: ${timeString}`, 660, 25);
+  context.font = "20px 'DOSIyagiMedium'";
+  context.fillText(`time left:${timeString}`, 640, 25);
 
   //display lines left
   context.fillText(`lines left:${linesLeft}`, 10, 25);
@@ -409,7 +409,7 @@ function update(time = 0) {
     player.velocityX = 0;
 
     context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
+    context.font = "20px 'DOSIyagiMedium'";
     context.textAlign = "center";
     context.fillText(levelCompletedText, boardWidth / 2, 350);
 
@@ -449,7 +449,7 @@ function update(time = 0) {
 
       context.textAlign = "center";
 
-      context.fillText(`TIME LEFT: ${leftTimeToScore}`, boardWidth / 2, 400);
+      context.fillText(`TIME LEFT: ${scoreTimeString}`, boardWidth / 2, 400);
 
       context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
 
@@ -546,7 +546,6 @@ function rightCollision(ball, block) {
 
 //#endregion
 
-
 // 13*12
 const patterns = [
   //level1
@@ -559,7 +558,7 @@ const patterns = [
     [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
     [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
     [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
   ],
   //level2
   [
@@ -571,7 +570,7 @@ const patterns = [
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
     [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
     [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
   ],
   //level3
   // [
@@ -598,7 +597,7 @@ const patterns = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
     [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
     [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   ],
 ];
 
@@ -610,7 +609,6 @@ let blockFallCounter = 0;
 let linesLeft;
 let blockRows = initBlockRows;
 
-
 function createBlocks() {
   pattern = patterns[level - 1];
   maxRows = patterns[level - 1].length;
@@ -620,7 +618,6 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-
         // 이부분 수정
         // let block = {
         //   break: false,
@@ -639,13 +636,16 @@ function createBlocks() {
         const rand = Math.random();
         let block;
 
-        if (rand < 0.05) { // 5% 확률: 초록색
+        if (rand < 0.05) {
+          // 5% 확률: 초록색
           block = new green_Enemy(2, 0, 0, r, c, 0, 1);
           block.color();
-        } else if (rand < 0.30) { // 다음 25% 확률: 빨간색
+        } else if (rand < 0.3) {
+          // 다음 25% 확률: 빨간색
           block = new red_Enemy(2, 0, 0, r, c, 0, 1);
           block.color();
-        } else { // 나머지 70% 확률: 검정색
+        } else {
+          // 나머지 70% 확률: 검정색
           block = new black_Enemy(1, 0, 0, r, c, 1, 1);
           block.color();
         }
@@ -703,7 +703,7 @@ function updateBlocks(deltaTime) {
       }
     }
 
-/*  
+    /*  
     blockArray = [];
     blockRows = 3;
     score = 0;
@@ -712,7 +712,7 @@ function updateBlocks(deltaTime) {
     if (block.HP == -1) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
-      block.x = blockX + block.col * (block.width + 2);;
+      block.x = blockX + block.col * (block.width + 2);
       block.y = blockY + visibleRowIndex * (block.height + 2);
 
       context.globalAlpha = block.alpha ?? 1.0;
@@ -760,12 +760,10 @@ function resetGame() {
     requestAnimationFrame(update); // SetInterval과 비슷한 역할을 한다.
     isAnimationRunning = true;
   }
-
 }
 
-// Enemy 
+// Enemy
 class Enemy {
-
   // 생성자
   constructor(HP, x, y, r, c, velocityX, velocityY) {
     this.HP = HP;
