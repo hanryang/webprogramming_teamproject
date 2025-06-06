@@ -1,59 +1,88 @@
-//board
+// 보듸의 크기
 let board;
-let boardWidth = 500;
-let boardHeight = 500;
+const boardWidth = 800;
+const boardHeight = 600;
 let context;
 
 //players
-let playerWidth = 100; //500 for testing, 80 normal
+let playerWidth = 200; //500 for testing, 80 normal
 let playerHeight = 10;
-let playerVelocityX = 5; //프레임당 10px 이동
+let playerVelocityX = 10; //프레임당 10px 이동
 
 let player = {
   x: boardWidth / 2 - playerWidth / 2,
-  y: boardHeight - playerHeight - 5,
+  y: boardHeight - playerHeight,
   width: playerWidth,
   height: playerHeight,
   velocityX: playerVelocityX,
 };
 
 //ball
-let ballWidth = 10;
-let ballHeight = 10;
-let ballVelocityX = 3; //15 for testing, 3 normal
-let ballVelocityY = 2; //10 for testing, 2 normal
+let ballRad = 8;
 
+let ballspeed; // 벡터의 크기 (속력)
+let angle; // 0 ~ 2π 범위의 무작위 각도 (라디안)
+
+let ballVelocityX; // x 방향 성분
+let ballVelocityY; // y 방향 성분
+
+// ball의 구조체
 let ball = {
   x: boardWidth / 2,
   y: boardHeight / 2,
-  width: ballWidth,
-  height: ballHeight,
+  rad: ballRad,
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
-};
-//충돌 이전 위치와 이를 통한 충돌 방향 계산
-let prevBall = {
-  x: ball.x - ball.velocityX,
-  y: ball.y - ball.velocityY,
-  width: ball.width,
-  height: ball.height,
 };
 
 //blocks
 let blockArray = [];
 let blockWidth = 55;
 let blockHeight = 55;
-let blockColumns = 8;
-let blockRows = 3; //add more as game goes on
-let blockMaxRows = 10; //limit how many rows
+let blockColumns = 13;
+let initBlockRows = 3; //add more as game goes on
 let blockCount = 0;
 
 //starting block corners top left
-let blockX = 15;
+let blockX = 30;
 let blockY = 45;
 
-let score = 0;
+let levelCompleted = false;
+
 let gameOver = false;
+let gameStartTime = 0;
+let timeLimit = 90; //90초
+let timeLeft;
+const gameOverLine = boardHeight - 80;
+
+let isAnimationRunning = false;
+let score = 0;
+let leftTimeToScore;
+let scorePerSecondLeft = 50;
+let leftTimetoScoreInit = false;
+let leftTimeToScoreHandled = false;
+let leftTimeToScoreStartTime;
+
+const levelSettings = [
+  {
+    ballVelocityX: 0,
+    ballVelocityY: 10,
+    playerWidth: 250,
+    timeLimit: 90,
+  },
+  {
+    ballVelocityX: 0,
+    ballVelocityY: 10,
+    playerWidth: 200,
+    timeLimit: 80,
+  },
+  {
+    ballVelocityX: 0,
+    ballVelocityY: 10,
+    playerWidth: 150,
+    timeLimit: 70,
+  },
+];
 
 //save key press status
 let keys = {
@@ -64,70 +93,186 @@ let keys = {
 window.onload = function () {
   start = document.getElementById("game_start");
   startMenu = document.getElementById("start_menu");
+  levelSelect = document.getElementById("level_select");
+  levelSelectMenu = document.getElementById("level_select_menu");
+  level1 = document.getElementById("lev_1");
+  level2 = document.getElementById("lev_2");
+  level3 = document.getElementById("lev_3");
+
+  returnB = document.getElementById("return");
   board = document.getElementById("board");
   board.height = boardHeight;
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
 
+  setupCanvas();
+
   start.onclick = function () {
+    
+    // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
     startMenu.style.display = "none";
     board.style.display = "block";
+    level = 1;
+    score = 0;
+
+    let countdown = 3;
+
+    // 카운트다운 이미지 요소 생성
+    let countdownImg = $("<img id='countdown-img'>").css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "200px",
+      zIndex: 100,
+    });
+
+    // 최초 3초 이미지 설정
+    countdownImg.attr("src", `./sources/background/${countdown}.png`);
+    $("body").append(countdownImg);
+
+    // 1초 간격으로 이미지 교체
+    let countdownInterval = setInterval(function () {
+      countdown--;
+
+      if (countdown > 0) {
+        // 2 → 1 → 0 이미지로 교체
+        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+      } else {
+        clearInterval(countdownInterval);
+        $("#countdown-img").remove();
+
+        // 3초 후 게임 시작
+        resetGame();
+      }
+    }, 1000);
   };
 
-  //draw initial player
-  context.fillStyle = "skyblue";
-  context.fillRect(player.x, player.y, player.width, player.height);
+  levelSelect.onclick = function () {
+    startMenu.style.display = "none";
+    levelSelectMenu.style.display = "block";
 
-  requestAnimationFrame(update); // SetInterval과 비슷한 역할을 한다.
+    levelSelectMenu.style.backgroundImage = "url('./sources/background/stageSelect.png')";
+  };
+  level1.onclick = function () {
+    levelSelectMenu.style.display = "none";
+    board.style.display = "block";
+    level = 1;
+    score = 0;
+    resetGame();
+  };
+  level2.onclick = function () {
+    levelSelectMenu.style.display = "none";
+    board.style.display = "block";
+    level = 2;
+    score = 0;
+    resetGame();
+  };
+  level3.onclick = function () {
+    levelSelectMenu.style.display = "none";
+    board.style.display = "block";
+    level = 3;
+    score = 0;
+    resetGame();
+  };
+
+  returnB.onclick = function () {
+    startMenu.style.display = "block";
+    levelSelectMenu.style.display = "none";
+  };
+
   document.addEventListener("keydown", (e) => {
     if (e.code in keys) keys[e.code] = true;
 
     if (gameOver && e.code === "Space") {
       resetGame();
     }
+    if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
+      if (level < 3) {
+        level++;
+        resetGame();
+      } else {
+        //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
+        level = 1;
+        isAnimationRunning = false;
+        startMenu.style.display = "block";
+        board.style.display = "none";
+      }
+    }
   });
 
   document.addEventListener("keyup", (e) => {
     if (e.code in keys) keys[e.code] = false;
   });
-
-  //create blocks
-  createBlocks(); // Block을 생성하는 역할
 };
 
-function movePlayer(e) {
-  if (gameOver) {
-    if (e.code == "Space") {
-      resetGame();
-      console.log("RESET");
-    }
-    return;
-  }
-  if (e.code == "ArrowLeft") {
-    // player.x -= player.velocityX;
-    let nextplayerX = player.x - player.velocityX;
-    if (!outOfBounds(nextplayerX)) {
-      player.x = nextplayerX;
-    }
-  } else if (e.code == "ArrowRight") {
-    let nextplayerX = player.x + player.velocityX;
-    if (!outOfBounds(nextplayerX)) {
-      player.x = nextplayerX;
-    }
-    // player.x += player.velocityX;
-  }
+//캔버스 화질 개선
+function setupCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+
+  // 내부 픽셀 크기 (고해상도 적용)
+  board.width = boardWidth * dpr;
+  board.height = boardHeight * dpr;
+
+  // CSS로 보이는 크기 (고정)
+  board.style.width = boardWidth + "px";
+  board.style.height = boardHeight + "px";
+
+  // 좌표계 스케일 조정 (픽셀 밀도 보정)
+  context.setTransform(1, 0, 0, 1, 0, 0); // 초기화
+  context.scale(dpr, dpr);
 }
 
-function update() {
-  requestAnimationFrame(update);
-  //stop drawing
-  if (gameOver) {
+let lastTime = 0;
+
+function update(time = 0) {
+
+  // 아마 일시정지 구현을 위한 처리라고 생각이 든다.
+  if (!isAnimationRunning) {
+    console.log("animation stopping");
     return;
   }
+
+  // 재귀 함수
+  requestAnimationFrame(update);
+
+  // 시간 차이 계산
+  if (lastTime === 0) lastTime = time;
+  const deltaTime = time - lastTime;
+  lastTime = time;
+
+  // 만약 게임이 끝났다면...
+  if (gameOver) {
+    context.fillStyle = "lightBlue";
+    context.font = "20px sans-serif";
+    context.textAlign = "center";
+    context.fillText(
+      "Game Over: Press 'Space' to Restart",
+      boardWidth / 2,
+      400
+    );
+    context.textAlign = "left";
+    return;
+  }
+
+  // Canvas 초기화
   context.clearRect(0, 0, board.width, board.height);
 
-  prevBall.x = ball.x;
-  prevBall.y = ball.y;
+  // 게임 오버 라인 그리기
+  context.strokeStyle = "red";
+  context.beginPath();
+  context.moveTo(0, gameOverLine);
+  context.lineTo(boardWidth, gameOverLine);
+  context.stroke();
+
+
+  //check time limit
+  if (!gameOver && !levelCompleted) {
+    timeLeft = Math.max(0, timeLimit - (time - gameStartTime) / 1000);
+  }
+  if (timeLeft <= 0) {
+    gameOver = true;
+  }
 
   //player 움직임 처리
   if (keys.ArrowLeft) {
@@ -152,12 +297,15 @@ function update() {
   context.fillStyle = "white";
   ball.x += ball.velocityX;
   ball.y += ball.velocityY;
-  context.fillRect(ball.x, ball.y, ball.width, ball.height);
+  context.beginPath();
+  context.arc(ball.x, ball.y, ball.rad, 0, Math.PI * 2);
+  context.fill();
 
   //bar 맞는 위치에 따라 공 굴절 각도 달라짐짐
   if (topCollision(ball, player)) {
+    console.log("paddle");
     // 공 중심 위치와 패들 왼쪽 위치 차이
-    let relativeIntersectX = ball.x + ball.width / 2 - player.x;
+    let relativeIntersectX = ball.x - player.x;
     let normalizedIntersectX = (relativeIntersectX / player.width) * 2 - 1; // -1 ~ 1 범위
 
     // 최대 X 속도 설정
@@ -171,142 +319,211 @@ function update() {
     ball.velocityY = -speed * Math.cos(bounceAngle); // 위로 튕기니까 음수
   }
 
-  if (ball.y <= 0) {
+  if (ball.y - ball.rad <= 0) {
     // if ball touches top of canvas
+    ball.y = ball.rad;
     ball.velocityY *= -1; //rev erse direction
-  } else if (ball.x <= 0 || ball.x + ball.width >= boardWidth) {
-    // if ball touches left or right of canvas
+  }
+  if (ball.x - ball.rad <= 0) {
+    // if ball touches left of canvas
+    ball.x = ball.rad;
     ball.velocityX *= -1; //reverse direction
-  } else if (ball.y + ball.height >= boardHeight) {
+  }
+  if (ball.x + ball.rad >= boardWidth) {
+    // if ball touches right of canvas
+    ball.x = boardWidth - ball.rad;
+    ball.velocityX *= -1; //reverse direction
+  }
+  if (ball.y + ball.rad >= boardHeight) {
     // if ball touches bottom of canvas
-    context.font = "20px sans-serif";
-    context.fillText("Game Over: Press 'Space' to Restart", 80, 400);
     gameOver = true;
   }
 
-  let brokenBlocks = [];
+  //충돌 로직
+  let startRow = maxRows - blockRows;
 
-  context.fillStyle = "skyblue";
-  for (let i = 0; i < blockArray.length; i++) {
-    let block = blockArray[i];
+  for (let block of blockArray) {
+    // if (block.break || block.breaking) continue;
+    if (block.HP <= -1 || block.breaking) continue;
+    if (block.row >= startRow) {
+      if (detectCollision(ball, block)) {
+        block.HP -= 1; // 충돌 시 HP 감소
+        let collDirect = getCollisionDirection(ball, block);
+        if (collDirect) {
+          console.log(collDirect);
 
-    if (block.breakingTimer > 0) {
-      block.breakingTimer--;
-      context.fillRect(block.x, block.y, block.width, block.height);
-      continue;
+          handleCollision(ball, block, collDirect);
+          if (block.HP == 0) {
+            block.breaking = true;
+            blockCount -= 1;
+          }
+          // break;
+        }
+      }
     }
-
-    if (block.break) continue;
-
-    let collided = false; //한 프레임 당 블럭 하나만 깨지게 수정.
-
-    let collDirect = getCollisionDirection(ball, prevBall, block);
-
-    if (collDirect) {
-      handleCollision(ball, block, collDirect);
-      collided = true;
-    }
-
-    if (collided) {
-      brokenBlocks.push(block);
-      block.breakingTimer = 5; //블럭이 너무 빨리 깨지는 것 방지
-      score += 100;
-      blockCount -= 1;
-    }
-    context.fillRect(block.x, block.y, block.width, block.height);
   }
 
-  for (let b of brokenBlocks) {
-    b.break = true;
+  //display time
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = Math.floor(timeLeft % 60);
+  const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  context.font = "20px sans-serif";
+  context.fillText(`time left: ${timeString}`, 660, 25);
+
+  //display lines left
+  context.fillText(`lines left:${linesLeft}`, 10, 25);
+  context.textAlign = "center";
+  context.fillText(`LEVEL ${level}`, boardWidth / 2, 25);
+  context.textAlign = "left";
+
+  //아래 선 넘은 블럭이 있는지 확인
+  for (let block of blockArray) {
+    if (
+      block.HP != 0 &&
+      !block.breaking &&
+      block.y + block.height >= gameOverLine
+    ) {
+      gameOver = true;
+      break; // 하나만 넘어도 종료
+    }
   }
+
+  updateBlocks(deltaTime);
 
   //next level
-  if (blockCount == 0) {
-    score += 100 * blockRows * blockColumns; //bonus points :)
-    blockRows = Math.min(blockRows + 1, blockMaxRows);
-    createBlocks();
-  }
+  if (blockCount <= 0) {
+    levelCompleted = true;
+    let levelCompletedText;
+    if (level < 3) {
+      levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
+    } else {
+      levelCompletedText =
+        "You completed every level!: Press 'Space' to go back to the Main Menu";
+    }
+    //공, 바 못 움직이게
+    ball.velocityX = 0;
+    ball.velocityY = 0;
+    player.velocityX = 0;
 
-  //score
-  context.font = "20px sans-serif";
-  context.fillText(score, 10, 25);
+    context.fillStyle = "lightBlue";
+    context.font = "20px sans-serif";
+    context.textAlign = "center";
+    context.fillText(levelCompletedText, boardWidth / 2, 350);
+
+    context.textAlign = "left";
+
+    //남은시간->점수 위해 남은 시간을 별도의 변수에 저장
+    if (!leftTimetoScoreInit) {
+      leftTimeToScore = Math.floor(timeLeft);
+      leftTimetoScoreInit = true;
+      leftTimeToScoreStartTime = performance.now();
+    }
+
+    let elapsedTime = time - leftTimeToScoreStartTime;
+
+    //모든 남은 시간이 점수로 환산되고 나면 에니메이션 종료
+    if (leftTimeToScore <= 0) {
+      leftTimeToScoreHandled = true;
+      isAnimationRunning = false;
+    }
+
+    //점수로 변환되는 시간 표시시
+    let scoreMinutes = Math.floor(leftTimeToScore / 60);
+    let scoreSeconds = Math.floor(leftTimeToScore % 60);
+    let scoreTimeString = `${scoreMinutes}:${scoreSeconds
+      .toString()
+      .padStart(2, "0")}`;
+
+    if (elapsedTime < 1000) {
+      context.textAlign = "center";
+      context.fillText(`TIME LEFT: ${timeString}`, boardWidth / 2, 400);
+      context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
+      context.textAlign = "left";
+    } else {
+      let increment = Math.min(1, leftTimeToScore);
+      score += increment * scorePerSecondLeft;
+      leftTimeToScore -= increment;
+
+      context.textAlign = "center";
+
+      context.fillText(`TIME LEFT: ${leftTimeToScore}`, boardWidth / 2, 400);
+
+      context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
+
+      context.textAlign = "left";
+    }
+  }
 }
 
 function outOfBounds(xPosition) {
-  return xPosition < 0 || xPosition + playerWidth > boardWidth;
+  return xPosition < 0 || xPosition + player.width > boardWidth;
 }
 
+// 충돌 감지 코드
 function detectCollision(ball, block) {
-  return (
-    ball.x < block.x + block.width && //ball의 왼쪽 위 코너 corner doesn't reach b's top right corner
-    ball.x + ball.width > block.x && //a's top right corner passes b's top left corner
-    ball.y < block.y + block.height && //a's top left corner doesn't reach b's bottom left corner
-    ball.y + ball.height > block.y
-  ); //a's bottom left corner passes b's top left corner
+  const distX = Math.abs(ball.x - (block.x + block.width / 2));
+  const distY = Math.abs(ball.y - (block.y + block.height / 2));
+
+  if (distX > block.width / 2 + ball.rad) return false;
+  if (distY > block.height / 2 + ball.rad) return false;
+
+  // 완전 안쪽까지 들어간 경우
+  if (distX <= block.width / 2) return true;
+  if (distY <= block.height / 2) return true;
+
+  // 코너 체크
+  const dx = distX - block.width / 2;
+  const dy = distY - block.height / 2;
+  return dx * dx + dy * dy <= ball.rad * ball.rad;
 }
 
-function getCollisionDirection(ball, prevBall, block) {
-  if (!detectCollision(ball, block)) return null;
+// 충돌 위치 감지 코드
+function getCollisionDirection(ball, block) {
+  const distTop = Math.abs(ball.y + ball.rad - block.y); // 위에서 블럭 위에 닿음
+  const distBottom = Math.abs(block.y + block.height - (ball.y - ball.rad)); // 아래에서 블럭 아래에 닿음
+  const distLeft = Math.abs(ball.x + ball.rad - block.x); // 오른쪽에서 블럭 왼쪽에 닿음
+  const distRight = Math.abs(block.x + block.width - (ball.x - ball.rad)); // 왼쪽에서 블럭 오른쪽에 닿음
 
-  const prevBottom = prevBall.y + prevBall.height;
-  const currBottom = ball.y + ball.height;
+  const minDist = Math.min(distTop, distBottom, distLeft, distRight);
 
-  const prevTop = prevBall.y;
-  const currTop = ball.y;
-
-  const prevRight = prevBall.x + prevBall.width;
-  const currRight = ball.x + ball.width;
-
-  const prevLeft = prevBall.x;
-  const currLeft = ball.x;
-
-  // 위에서 들어옴
-  if (prevBottom <= block.y && currBottom >= block.y) {
-    return "top";
-  }
-
-  // 아래에서 들어옴
-  if (prevTop >= block.y + block.height && currTop <= block.y + block.height) {
-    return "bottom";
-  }
-
-  // 왼쪽에서 들어옴
-  if (prevRight <= block.x && currRight >= block.x) {
-    return "left";
-  }
-
-  // 오른쪽에서 들어옴
-  if (prevLeft >= block.x + block.width && currLeft <= block.x + block.width) {
-    return "right";
-  }
+  if (minDist == distTop) return "top";
+  if (minDist == distBottom) return "bottom";
+  if (minDist == distLeft) return "left";
+  if (minDist == distRight) return "right";
 
   return "unknown";
 }
 
+// 충돌 처리 함수
 function handleCollision(ball, block, collDirect) {
   switch (collDirect) {
     case "top":
-      ball.y = block.y - ball.height;
+      ball.y = block.y - ball.rad;
       ball.velocityY *= -1;
       break;
     case "bottom":
-      ball.y = block.y + block.height;
+      ball.y = block.y + block.height + ball.rad;
       ball.velocityY *= -1;
       break;
     case "left":
-      ball.x = block.x - ball.width;
+      ball.x = block.x - ball.rad;
       ball.velocityX *= -1;
       break;
     case "right":
-      ball.x = block.x + block.width;
+      ball.x = block.x + block.width + ball.rad;
       ball.velocityX *= -1;
       break;
   }
 }
 
+//#region 충돌 방향에 따른 충돌 처리 함수들
 function topCollision(ball, block) {
   //a is above b (ball is above block)
-  return detectCollision(ball, block) && ball.y + ball.height >= block.y;
+  return (
+    detectCollision(ball, block) &&
+    ball.y + ball.rad >= block.y &&
+    ball.velocityY > 0
+  );
 }
 
 function bottomCollision(ball, block) {
@@ -316,7 +533,7 @@ function bottomCollision(ball, block) {
 
 function leftCollision(ball, block) {
   //a is left of b (ball is left of block)
-  return detectCollision(ball, block) && ball.x + ball.width >= block.x;
+  return detectCollision(ball, block) && ball.x + ball.rad >= block.x;
 }
 
 function rightCollision(ball, block) {
@@ -324,45 +541,297 @@ function rightCollision(ball, block) {
   return detectCollision(ball, block) && block.x + block.width >= ball.x;
 }
 
+//#endregion
+
+
+// 13*12
+const patterns = [
+  //level1
+  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+  ],
+  //level2
+  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
+  ],
+
+  //level3
+  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+  ],
+];
+
+let level = 0;
+let pattern;
+let maxRows;
+let blockFallingInterval = 6000;
+let blockFallCounter = 0;
+let linesLeft;
+let blockRows = initBlockRows;
+
+
 function createBlocks() {
-  // 이 부분에서 난수로 0~10(?)개 정도 난수로 뽑아서 열로 내려오는 것을 구현하면 될 것 같습니다.
+  pattern = patterns[level - 1];
+  maxRows = patterns[level - 1].length;
+  console.log("maxrows", maxRows);
   blockArray = []; //clear blockArray
-  for (let c = 0; c < blockColumns; c++) {
-    for (let r = 0; r < blockRows; r++) {
-      let block = {
-        x: blockX + c * blockWidth + c * 2, //c*2 space 10 pixels apart columns
-        y: blockY + r * blockHeight + r * 2, //r*2 space 10 pixels apart rows
-        width: blockWidth,
-        height: blockHeight,
-        break: false,
-        breakingTimer: 0,
-      };
-      blockArray.push(block);
+  linesLeft = Math.max(0, maxRows - blockRows);
+  for (let r = 0; r < maxRows; r++) {
+    for (let c = 0; c < blockColumns; c++) {
+      if (pattern[r][c]) {
+
+        //#region 변경 block 생성 수정
+        // 확률에 따라 색상 및 HP 결정
+        const rand = Math.random();
+        let block;
+
+        if (rand < 0.05) { // 5% 확률: 초록색
+          block = new green_Enemy(2, 0, 0, r, c, 0, 1);
+          block.color();
+        } else if (rand < 0.30) { // 다음 25% 확률: 빨간색
+          block = new red_Enemy(2, 0, 0, r, c, 0, 1);
+          block.color();
+        } else { // 나머지 70% 확률: 검정색
+          block = new black_Enemy(1, 0, 0, r, c, 1, 1);
+          block.color();
+        }
+        //#endregion
+        blockArray.push(block);
+        // if (!block.break) {
+        // if (block.HP != 0) { // 필요가 없지 않나?
+        blockCount++;
+        // }
+      }
     }
   }
-  blockCount = blockArray.length;
+}
+
+function updateBlocks(deltaTime) {
+  // 블록이 일정 시간마다 한 줄씩 아래로 내려오게 하는 로직
+  blockFallCounter += deltaTime;
+  if (blockFallCounter >= blockFallingInterval) {
+    blockFallCounter = 0;
+    if (blockRows < maxRows) {
+      blockRows++;
+      linesLeft--;
+      console.log(blockRows);
+      console.log(linesLeft);
+    }
+  }
+  let startRow = maxRows - blockRows;
+
+  // 블록이 깨지는 애니메이션 처리
+  for (let block of blockArray) {
+    if (block.HP == 1 && block.colorValue != "white") {
+      block.alpha -= 0.05;
+      if (block.alpha <= 0) {
+        if (block.colorValue == "green") {
+          block.position_change(); // 초록색 블록은 위치 변경
+        }
+        block.alpha = 0;
+        block.color();
+      }
+    }
+    if (block.HP == 1 && block.colorValue == "white" && block.alpha < 1.0) {
+      block.alpha += 0.05;
+      if (block.alpha >= 1.0) {
+        block.alpha = 1.0;
+      }
+    }
+    if (block.HP === 0 && block.breaking) {
+      // block.alpha -= 0.01;
+      // if (block.alpha <= 0) {
+      block.alpha -= 0.05;
+      if (block.alpha <= 0) {
+        block.alpha = 0;
+        block.breaking = false;
+        block.HP = -1; // 블록이 깨졌으므로 HP를 -1으로 설정
+      }
+    }
+
+/*  
+    blockArray = [];
+    blockRows = 3;
+    score = 0;
+    createblocks();
+*/
+    if (block.HP == -1) continue;
+    if (block.row >= startRow) {
+      let visibleRowIndex = block.row - startRow;
+      block.x = blockX + block.col * (block.width + 2);;
+      block.y = blockY + visibleRowIndex * (block.height + 2);
+
+      context.globalAlpha = block.alpha ?? 1.0;
+      // context.fillStyle = block.colorValue ?? "white"; // 기본 색상 및 색 지정
+      block.draw(context);
+      // context.fillRect(block.x, block.y, block.width, block.height);
+      context.globalAlpha = 1.0;
+    }
+  }
 }
 
 function resetGame() {
+  const settings = levelSettings[level - 1];
   // 게임 초기화
   gameOver = false;
-  player = {
-    x: boardWidth / 2 - playerWidth / 2,
-    y: boardHeight - playerHeight - 5,
-    width: playerWidth,
-    height: playerHeight,
-    velocityX: playerVelocityX,
-  };
-  ball = {
-    x: boardWidth / 2,
-    y: boardHeight / 2,
-    width: ballWidth,
-    height: ballHeight,
-    velocityX: ballVelocityX,
-    velocityY: ballVelocityY,
-  };
+  levelCompleted = false;
+  player.velocityX = playerVelocityX;
+  player.width = settings.playerWidth;
+
+  player.x = boardWidth / 2 - player.width / 2;
+  player.y = boardHeight - player.height;
+  ball.x = boardWidth / 2;
+  ball.y = boardHeight / 2;
+  ball.velocityX = settings.ballVelocityX;
+  ball.velocityY = settings.ballVelocityY;
+  timeLimit = settings.timeLimit;
+
+  console.log(ball.velocityX, ball.velocityY);
+
   blockArray = [];
-  blockRows = 3;
-  score = 0;
+  blockRows = initBlockRows;
+  blockCount = 0;
+
+  //시간 관련 초기화
+  lastTime = 0;
+  gameStartTime = performance.now();
+
+  //남은시간->점수 확인 변수 초기화
+  leftTimeToScoreHandled = false;
+  leftTimetoScoreInit = false;
+
   createBlocks();
+
+  if (!isAnimationRunning) {
+    requestAnimationFrame(update); // SetInterval과 비슷한 역할을 한다.
+    isAnimationRunning = true;
+  }
+
+}
+
+// Enemy 
+class Enemy {
+
+  // 생성자
+  constructor(HP, x, y, r, c, velocityX, velocityY) {
+    this.HP = HP;
+    this.breaking = false;
+    this.x = x;
+    this.y = y;
+    this.row = r;
+    this.col = c;
+    this.width = 55;
+    this.height = 55;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+    this.colorValue; // 기본 색상
+    this.alpha = 1.0; // 블록의 투명도
+
+    this.image = new Image();
+  }
+
+  update() {
+    this.x += this.velocityX;
+    this.y += this.velocityY;
+  }
+
+  loadImage(path) {
+    this.image.src = path;
+  }
+
+  // 죽는 메소드
+  die() {
+    return this.HP <= 0;
+  }
+
+  // block를 그리는 메소드
+  draw(context) {
+    if (this.image.complete) {
+      context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    } else {
+      this.image.onload = () => {
+        context.drawImage(this.image, this.x, this.y, this.width, this.height);
+      };
+    }
+  }
+}
+
+// 목숨이 하나인 적
+class black_Enemy extends Enemy {
+  color() {
+    this.colorValue = "white";
+    this.loadImage("./sources/block/white.png");
+  }
+}
+
+// 목숨이 2개인 적
+class red_Enemy extends Enemy {
+  color() {
+    if (this.HP === 2) {
+      this.colorValue = "red";
+      this.loadImage("./sources/block/red.png");
+    } else if (this.HP === 1) {
+      this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
+    }
+  }
+}
+
+// 목숨이 2개인 적 + 랜덤 이동
+class green_Enemy extends Enemy {
+  color() {
+    if (this.HP === 2) {
+      this.colorValue = "green";
+      this.loadImage("./sources/block/green.png");
+    } else if (this.HP === 1) {
+      this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
+    }
+  }
+
+  position_change() {
+    // 현재 행(row)에서 pattern의 값이 0인 열(col)만 추출
+    const currentPattern = patterns[level - 1][this.row];
+    const emptyCols = [];
+    for (let col = 0; col < currentPattern.length; col++) {
+      if (currentPattern[col] === 0) {
+        emptyCols.push(col);
+      }
+    }
+
+    // 빈 칸이 있다면 그 중 하나로 이동
+    if (emptyCols.length > 0) {
+      const randomCol = emptyCols[Math.floor(Math.random() * emptyCols.length)];
+      this.col = randomCol;
+      // this.x = blockX + this.col * (this.width + 2);
+      this.x = this.col;
+    } else {
+      // 빈 칸이 없다면 현재 위치를 유지
+      this.HP = 0;
+    }
+  }
 }
