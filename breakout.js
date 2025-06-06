@@ -114,41 +114,38 @@ window.onload = function () {
     board.style.display = "block";
     level = 1;
     score = 0;
-      // 게임 시작 클릭 후 UI를 숨긴다
-      // $("#game_ui").hide();
-    // 카운트다운 텍스트 생성 및 표시
+
     let countdown = 3;
 
-    // 카운트 다운
-    let countdownDiv = $("<div id='countdown'></div>").css({
+    // 카운트다운 이미지 요소 생성
+    let countdownImg = $("<img id='countdown-img'>").css({
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      fontSize: "60px",
-      fontWeight: "bold",
-      color: "red",
-      zIndex: 100
-    }).text(countdown);
+      width: "200px",
+      zIndex: 100,
+    });
 
-    // 카운트 다운 생성
-    $("body").append(countdownDiv);
+    // 최초 3초 이미지 설정
+    countdownImg.attr("src", `./sources/background/${countdown}.png`);
+    $("body").append(countdownImg);
 
-    // countdownInterval을 통해 3초간 게임을 시작하지 않고 기다린다.
+    // 1초 간격으로 이미지 교체
     let countdownInterval = setInterval(function () {
       countdown--;
+
       if (countdown > 0) {
-        $("#countdown").text(countdown);
+        // 2 → 1 → 0 이미지로 교체
+        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
       } else {
         clearInterval(countdownInterval);
-        $("#countdown").remove();
+        $("#countdown-img").remove();
 
-        // ⏱ 3초 후에 게임 시작
-        // requestAnimationFrame(update);
+        // 3초 후 게임 시작
         resetGame();
-        // $(document).on("keydown", movePlayer);
       }
-    }, 1000); // 1초 간격으로 카운트다운
+    }, 1000);
   };
 
   levelSelect.onclick = function () {
@@ -573,21 +570,7 @@ const patterns = [
     [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
     [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
   ],
-  //level3
-  // [
-  //   [1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1],
-  //   [0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
-  //   [1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1],
-  //   [1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-  //   [1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
-  //   [0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-  //   [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
-  //   [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-  // ],
+
   //level3
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -620,19 +603,6 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-
-        // 이부분 수정
-        // let block = {
-        //   break: false,
-        //   breaking: false,
-        //   alpha: 1.0,
-        //   row: r,
-        //   col: c,
-        //   x: 0,
-        //   y: 0,
-        //   width: blockWidth,
-        //   height: blockHeight,
-        // };
 
         //#region 변경 block 생성 수정
         // 확률에 따라 색상 및 HP 결정
