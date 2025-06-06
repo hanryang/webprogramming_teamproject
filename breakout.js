@@ -154,6 +154,8 @@ window.onload = function () {
   levelSelect.onclick = function () {
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
+
+    levelSelectMenu.style.backgroundImage = "url('./sources/background/stageSelect.png')";
   };
   level1.onclick = function () {
     levelSelectMenu.style.display = "none";
