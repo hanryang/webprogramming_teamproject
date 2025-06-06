@@ -17,6 +17,14 @@ let player = {
   velocityX: playerVelocityX,
 };
 
+// music
+let bgmPlayer = null;
+const musicMap = {
+  music1 : "sources/music/music1.mp3",
+  music2 : "sources/music/music2.mp3",
+  music3 : "sources/music/music3.mp3"
+};
+
 //ball
 let ballRad = 8;
 
@@ -250,17 +258,26 @@ window.onload = function () {
     });
   });
 
-  settingsNavItems.forEach((ni)=> ni.classList.remove("active"));
-  settingsNavItems[0].classList.add("active");
-  panels.forEach((panel)=> panel.classList.add("hidden"));
-  document.getElementById("music_panel").classList.remove("hidden");
 
   let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
+
+  function playBGM(musicKey) {
+    if (bgmPlayer) {
+      bgmPlayer.pause();
+      bgmPlayer.currentTime = 0;
+    }
+    bgmPlayer = new Audio(musicMap[musicKey]);
+    bgmPlayer.loop = true;
+    bgmPlayer.volume = 0.5;
+    bgmPlayer.play();
+  }
+
+  playBGM(selectedMusic); // 초기 재생
+
   musicForm.addEventListener("change", (e) => {
     if (e.target.name === "music") {
       selectedMusic = e.target.value;
-      console.log("선택된 Music:", selectedMusic);
-      // TODO: 실제 배경음악 재생/정지 로직을 여기에 추가
+      playBGM(selectedMusic);
     }
   });
 
