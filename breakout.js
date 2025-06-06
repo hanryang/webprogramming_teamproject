@@ -349,10 +349,6 @@ function update(time = 0) {
     if (block.row >= startRow) {
       if (detectCollision(ball, block)) {
         block.HP -= 1; // 충돌 시 HP 감소
-        if (block.colorValue == "green") {
-          block.position_change(); // 초록색 블록은 위치 변경
-        }
-        block.color(); // 색상 업데이트
         let collDirect = getCollisionDirection(ball, block);
         if (collDirect) {
           console.log(collDirect);
@@ -678,6 +674,22 @@ function updateBlocks(deltaTime) {
 
   // 블록이 깨지는 애니메이션 처리
   for (let block of blockArray) {
+    if (block.HP == 1 && block.colorValue != "white") {
+      block.alpha -= 0.05;
+      if (block.alpha <= 0) {
+        if (block.colorValue == "green") {
+          block.position_change(); // 초록색 블록은 위치 변경
+        }
+        block.alpha = 0;
+        block.color();
+      }
+    }
+    if (block.HP == 1 && block.colorValue == "white" && block.alpha < 1.0) {
+      block.alpha += 0.05;
+      if (block.alpha >= 1.0) {
+        block.alpha = 1.0;
+      }
+    }
     if (block.HP === 0 && block.breaking) {
       // block.alpha -= 0.01;
       // if (block.alpha <= 0) {
@@ -702,8 +714,9 @@ function updateBlocks(deltaTime) {
       block.y = blockY + visibleRowIndex * (block.height + 2);
 
       context.globalAlpha = block.alpha ?? 1.0;
-      context.fillStyle = block.colorValue ?? "white"; // 기본 색상 및 색 지정
-      context.fillRect(block.x, block.y, block.width, block.height);
+      // context.fillStyle = block.colorValue ?? "white"; // 기본 색상 및 색 지정
+      block.draw(context);
+      // context.fillRect(block.x, block.y, block.width, block.height);
       context.globalAlpha = 1.0;
     }
   }
@@ -765,6 +778,8 @@ class Enemy {
     this.velocityY = velocityY;
     this.colorValue; // 기본 색상
     this.alpha = 1.0; // 블록의 투명도
+
+    this.image = new Image();
   }
 
   update() {
@@ -772,9 +787,8 @@ class Enemy {
     this.y += this.velocityY;
   }
 
-  // 내려가는 메소드
-  move_down() {
-    this.y += this.velocityY;
+  loadImage(path) {
+    this.image.src = path;
   }
 
   // 죽는 메소드
@@ -784,10 +798,13 @@ class Enemy {
 
   // block를 그리는 메소드
   draw(context) {
-    context.beginPath();
-    context.fillStyle = this.colorValue;
-    context.fillRect(this.x, this.y, this.width, this.height);
-    context.closePath();
+    if (this.image.complete) {
+      context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    } else {
+      this.image.onload = () => {
+        context.drawImage(this.image, this.x, this.y, this.width, this.height);
+      };
+    }
   }
 }
 
@@ -795,6 +812,7 @@ class Enemy {
 class black_Enemy extends Enemy {
   color() {
     this.colorValue = "white";
+    this.loadImage("./sources/block/white.png");
   }
 }
 
@@ -803,8 +821,10 @@ class red_Enemy extends Enemy {
   color() {
     if (this.HP === 2) {
       this.colorValue = "red";
+      this.loadImage("./sources/block/red.png");
     } else if (this.HP === 1) {
       this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
     }
   }
 }
@@ -814,8 +834,10 @@ class green_Enemy extends Enemy {
   color() {
     if (this.HP === 2) {
       this.colorValue = "green";
+      this.loadImage("./sources/block/green.png");
     } else if (this.HP === 1) {
       this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
     }
   }
 
