@@ -1,4 +1,4 @@
-// 보듸의 크기
+// 보더의 크기
 let board;
 const boardWidth = 800;
 const boardHeight = 600;
@@ -90,17 +90,19 @@ let keys = {
   ArrowRight: false,
 };
 
-window.onload = function () {
-  start = document.getElementById("game_start");
-  startMenu = document.getElementById("start_menu");
-  levelSelect = document.getElementById("level_select");
-  levelSelectMenu = document.getElementById("level_select_menu");
-  level1 = document.getElementById("lev_1");
-  level2 = document.getElementById("lev_2");
-  level3 = document.getElementById("lev_3");
+let storyShow = false; // 스토리 모드 표시 여부
 
-  returnB = document.getElementById("return");
-  board = document.getElementById("board");
+window.onload = function () {
+ start = document.getElementById("game_start");
+ startMenu = document.getElementById("start_menu");
+ levelSelect = document.getElementById("level_select");
+ levelSelectMenu = document.getElementById("level_select_menu");
+ level1 = document.getElementById("lev_1");
+ level2 = document.getElementById("lev_2");
+ level3 = document.getElementById("lev_3");
+ returnB = document.getElementById("return");
+ board = document.getElementById("board");
+
   board.height = boardHeight;
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
@@ -110,8 +112,15 @@ window.onload = function () {
   start.onclick = function () {
     
     // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
+    storyShow = true; // 스토리 모드 표시
     startMenu.style.display = "none";
     board.style.display = "block";
+
+    // if (storyShow) { //스토리 모드 실행
+    // showStoryIntro(); //함수 가제(구현 안됨)
+    // } else { // 스토리 모드가 아니면 바로 게임 시작
+    // startGame();}
+    
     level = 1;
     score = 0;
       // 게임 시작 클릭 후 UI를 숨긴다
@@ -152,6 +161,7 @@ window.onload = function () {
   };
 
   levelSelect.onclick = function () {
+    storyShow = false; // 스토리 모드 건너뜀
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
   };
