@@ -13,18 +13,21 @@
     <div id="start_menu">
       <div class="button-position-anchor">
         <div id="button-wrapper">
-          <button id="game_start"><img src="./sources/button/start.png" alt="게임 시작" /></button>
-          <button id="level_select"><img src="./sources/button/stage.png" alt="난이도 선택" /></button>
-          <button id="setting"><img src="./sources/button/setting.png" alt="환경 설정" /></button>
+          <button id="game_start">
+            <img src="./sources/button/start.png" alt="게임 시작" />
+          </button>
+          <button id="level_select">
+            <img src="./sources/button/stage.png" alt="난이도 선택" />
+          </button>
+          <button id="setting">
+            <img src="./sources/button/setting.png" alt="환경 설정" />
+          </button>
         </div>
       </div>
     </div>
 
     <div id="level_select_menu">
       <div id="button-wrapper_level">
-        <button id="lev_1"><img src="./sources/button/level1.png" alt="Level 1" /></button>
-        <button id="lev_2"><img src="./sources/button/level2.png" alt="Level 2" /></button>
-        <button id="lev_3"><img src="./sources/button/level3.png" alt="Level 3" /></button>
         <button id="lev_1">
           <img src="./sources/button/level1.png" alt="Level 1" />
         </button>
@@ -43,18 +46,12 @@
     <div id="settings_menu">
       <nav id="settings_nav">
         <ul>
-          <li data-panel="music_panel" class="nav-item active">
-            # Music
-          </li>
-          <li data-panel="ball_panel" class="nav-item">
-            # Ball
-          </li>
-          <li data-panel="back" class="nav-item">
-            Back
-          </li>
+          <li data-panel="music_panel" class="nav-item active"># Music</li>
+          <li data-panel="ball_panel" class="nav-item"># Ball</li>
+          <li data-panel="back" class="nav-item">Back</li>
         </ul>
       </nav>
-    
+
       <div id="settings_content">
         <section id="music_panel" class="panel">
           <h2># Music</h2>
@@ -70,7 +67,7 @@
               music 2
             </label>
             <label class="radio-label">
-              <input type="radio" name="music" value="music3"/>
+              <input type="radio" name="music" value="music3" />
               <span class="radio-custom"></span>
               music 3
             </label>
@@ -81,17 +78,17 @@
           <h2># Ball</h2>
           <form id="ball_form">
             <label class="radio-label">
-              <input type="radio" name="ball" value="small">
+              <input type="radio" name="ball" value="small" />
               <span class="radio-custom"></span>
               점수 x1.5
             </label>
             <label class="radio-label">
-              <input type="radio" name="ball" value="medium" checked>
+              <input type="radio" name="ball" value="medium" checked />
               <span class="radio-custom"></span>
               점수 x1
             </label>
             <label class="radio-label">
-              <input type="radio" name="ball" value="large">
+              <input type="radio" name="ball" value="large" />
               <span class="radio-custom"></span>
               점수 x0.5
             </label>
