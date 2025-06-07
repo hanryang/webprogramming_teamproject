@@ -228,6 +228,10 @@ window.onload = function () {
     }
     if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
 
+      if (isCutscenePlaying) {
+        return
+      }
+
       if (level < 3) {
         // 다음 레벨로 넘어가기 전에 컷신 재생
 
@@ -781,6 +785,7 @@ function resetGame() {
   // 게임 초기화
   gameOver = false;
   levelCompleted = false;
+  isCutscenePlaying = false;
   player.velocityX = playerVelocityX;
   player.width = settings.playerWidth;
 
@@ -838,7 +843,7 @@ function playCutscene(images, onComplete) {
 //  컷신 종료 후 게임 시작
 function endCutscene(callback) {
   document.getElementById("cutscene").style.display = "none";
-  isCutscenePlaying = false;
+  // isCutscenePlaying = false;
   if (cutsceneTimer) clearInterval(cutsceneTimer);
   if (callback) callback();
 }
