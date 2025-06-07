@@ -1,17 +1,26 @@
 @font-face {
   font-family: 'DOSIyagiMedium';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') format('woff2');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') 
+  format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center;     /* 수직 중앙 정렬 */
-    background-color:  #3D3D3D;
+  margin: 20;
+  height: 100vh;
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center;     /* 수직 중앙 정렬 */
+  background-color:  #3D3D3D;
+  font-family: "DOSIyagiMedium";
+  font-weight: normal;
+  font-style: normal;
+  overflow: hidden; /* 스크롤바 제거 */
+}
+
+* {
+  font-family: "DOSIyagiMedium", sans-serif;
 }
 
 /* 게임 시작 화면 컨테이너 */
@@ -38,7 +47,6 @@ body {
   /* 수평 중앙 정렬 */
   justify-content: center;
   /* 수직 중앙 정렬 */
-
   background-image: url('./sources/background/mainScreen.png');
   background-size: cover;
   background-position: center;
@@ -64,13 +72,11 @@ body {
 
 #start_menu button {
   display: block;
-
-
   background: none;
-    border: none;
-    padding: 0;
-    margin: 10px 0;
-    cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 10px 0;
+  cursor: pointer;
 }
 /* 타이틀 이미지 */
 #logo {
@@ -93,6 +99,33 @@ body {
   cursor: pointer;
   width: 292px; /* 이미지 원본 크기 */
   height: 68px;
+}
+
+#start_menu button img {
+  width: 200px;
+  /* 필요에 따라 크기 조절 */
+  height: auto;
+  display: block;
+}
+
+/* #level_select_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+  background-image: url('');
+}
+
+#level_select_menu button {
+  display: block;
+} */
+
+#start_menu button:hover {
+  filter: brightness(1.5);
 }
 
 #start_menu button img {
@@ -156,6 +189,10 @@ body {
   display: inline-block;
 }
 
+#level_select_menu button:hover {
+  filter: brightness(1.2);
+}
+
 #level_select_menu button img {
   display: block;
   width: 180px;
@@ -165,7 +202,7 @@ body {
 /* 왼쪽 아래 BACK 텍스트 */
 #return {
   margin: 20px 0;
-  font-family: 'DOSIyagiMedium';
+  font-family: "DOSIyagiMedium";
   align-self: flex-start;
   font-size: 30px;
   color: white;
@@ -174,9 +211,9 @@ body {
 
 /* 캔버스와 버튼을 담은 전체 컨테이너 */
 #game-container {
-    position: relative;
-    width: 80vw;   /* 화면 너비의 80% */
-    height: 80vh;  /* 화면 높이의 80% */
+  position: relative;
+  width: 80vw; /* 화면 너비의 80% */
+  height: 80vh; /* 화면 높이의 80% */
 }
 
 /* 캔버스 스타일 */
@@ -198,27 +235,20 @@ body {
 }
 
 #game_ui {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: steelblue;
-    color: white;
-    display: flex;
-    flex-direction: column;   /* 수직 정렬 */
-    align-items: center;
-    gap: 20px;                /* 버튼 간 간격 */
-    background-color: steelblue;
-    border-radius: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: steelblue;
+  color: white;
+  display: flex;
+  flex-direction: column; /* 수직 정렬 */
+  align-items: center;
+  gap: 20px; /* 버튼 간 간격 */
+  background-color: steelblue;
+  border-radius: 10px;
 }
-
-/* #game_start {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    z-index: 10;
-} */
 
 #settings {
     padding: 10px 20px;
@@ -352,4 +382,88 @@ body {
 
 .radio-label span + span{
   margin-left: 6px;
+}
+
+#game_start {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#settings {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#gameover_screen {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOver.png");
+  background-size: cover;
+}
+
+#gameover_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOverMenu.png");
+  background-size: cover;
+}
+
+#revenge {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#revenge:hover,
+#revenge:active {
+  filter: contrast(1.8);
+}
+
+#cutscene {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  z-index: 1000;
+}
+
+#cutscene-img {
+  width: 100%;
+  height: 100%;
+}
+
+#cutscene-skip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 20px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+  z-index: 1001;
 }
