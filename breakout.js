@@ -5,9 +5,13 @@ const boardHeight = 600;
 let context;
 
 //players
-let playerWidth = 200; //500 for testing, 80 normal
-let playerHeight = 10;
+let playerWidth = 180; //500 for testing, 80 normal
+let playerHeight = 25;
 let playerVelocityX = 10; //프레임당 10px 이동
+
+//바 이미지 가져오기기
+const playerImg = new Image();
+playerImg.src = "./sources/gameBar.png";
 
 let player = {
   x: boardWidth / 2 - playerWidth / 2,
@@ -15,6 +19,7 @@ let player = {
   width: playerWidth,
   height: playerHeight,
   velocityX: playerVelocityX,
+  img: playerImg,
 };
 
 //ball
@@ -63,6 +68,8 @@ let leftTimetoScoreInit = false;
 let leftTimeToScoreHandled = false;
 let leftTimeToScoreStartTime;
 
+let storyMode = true;
+
 // 컷신 상태 변수 및 타이머
 let isCutscenePlaying = false;
 let currentCutsceneImages = [];
@@ -77,27 +84,18 @@ const introImages = [
   "./sources/cutscene/intro4.png",
 ];
 
-const level1ending = [
-  "./sources/cutscene/fin1.png",
-];
+const level1ending = ["./sources/cutscene/fin1.png"];
 
 const level2beginning = [
   "./sources/cutscene/pre2_1.png",
   "./sources/cutscene/pre2_2.png",
 ];
 
-const level2ending = [
-  "./sources/cutscene/fin2.png",
-];
+const level2ending = ["./sources/cutscene/fin2.png"];
 
-const level3beginning = [
-  "./sources/cutscene/pre3.png",
-];
+const level3beginning = ["./sources/cutscene/pre3.png"];
 
-const level3ending = [
-  "./sources/cutscene/fin3.png",
-];
-
+const level3ending = ["./sources/cutscene/fin3.png"];
 
 const levelSettings = [
   {
@@ -134,6 +132,9 @@ window.onload = function () {
   level1 = document.getElementById("lev_1");
   level2 = document.getElementById("lev_2");
   level3 = document.getElementById("lev_3");
+  gameOverImg = document.getElementById("gameover_screen");
+  gameOverMenu = document.getElementById("gameover_menu");
+  revenge = document.getElementById("revenge");
 
   returnB = document.getElementById("return");
   board = document.getElementById("board");
@@ -152,6 +153,7 @@ window.onload = function () {
   start.onclick = function () {
     startMenu.style.display = "none";
     board.style.display = "none"; // 컷신이 끝난 뒤 보여지므로 숨김
+    storyMode = true;
     level = 1;
     score = 0;
 
@@ -172,10 +174,16 @@ window.onload = function () {
       countdownImg.attr("src", `./sources/background/${countdown}.png`);
       $("body").append(countdownImg);
 
+      // 1초 간격으로 이미지 교체
       let countdownInterval = setInterval(function () {
         countdown--;
+
         if (countdown > 0) {
-          $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+          // 2 → 1 → 0 이미지로 교체
+          $("#countdown-img").attr(
+            "src",
+            `./sources/background/${countdown}.png`
+          );
         } else {
           clearInterval(countdownInterval);
           $("#countdown-img").remove();
@@ -191,13 +199,15 @@ window.onload = function () {
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
 
-    levelSelectMenu.style.backgroundImage = "url('./sources/background/stageSelect.png')";
+    levelSelectMenu.style.backgroundImage =
+      "url('./sources/background/stageSelect.png')";
   };
   level1.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 1;
     score = 0;
+    storyMode = false;
     let countdown = 3;
 
     // 카운트다운 이미지 요소 생성
@@ -220,7 +230,10 @@ window.onload = function () {
 
       if (countdown > 0) {
         // 2 → 1 → 0 이미지로 교체
-        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        $("#countdown-img").attr(
+          "src",
+          `./sources/background/${countdown}.png`
+        );
       } else {
         clearInterval(countdownInterval);
         $("#countdown-img").remove();
@@ -235,6 +248,7 @@ window.onload = function () {
     board.style.display = "block";
     level = 2;
     score = 0;
+    storyMode = false;
     let countdown = 3;
 
     // 카운트다운 이미지 요소 생성
@@ -257,7 +271,10 @@ window.onload = function () {
 
       if (countdown > 0) {
         // 2 → 1 → 0 이미지로 교체
-        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        $("#countdown-img").attr(
+          "src",
+          `./sources/background/${countdown}.png`
+        );
       } else {
         clearInterval(countdownInterval);
         $("#countdown-img").remove();
@@ -272,6 +289,7 @@ window.onload = function () {
     board.style.display = "block";
     level = 3;
     score = 0;
+    storyMode = false;
     let countdown = 3;
 
     // 카운트다운 이미지 요소 생성
@@ -294,7 +312,10 @@ window.onload = function () {
 
       if (countdown > 0) {
         // 2 → 1 → 0 이미지로 교체
-        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        $("#countdown-img").attr(
+          "src",
+          `./sources/background/${countdown}.png`
+        );
       } else {
         clearInterval(countdownInterval);
         $("#countdown-img").remove();
@@ -303,6 +324,12 @@ window.onload = function () {
         resetGame();
       }
     }, 1000);
+  };
+  revenge.onclick = () => {
+    storyMode = true;
+    gameOverMenu.style.display = "none";
+    board.style.display = "block";
+    resetGame();
   };
 
   returnB.onclick = function () {
@@ -313,13 +340,12 @@ window.onload = function () {
   document.addEventListener("keydown", (e) => {
     if (e.code in keys) keys[e.code] = true;
 
-    if (gameOver && e.code === "Space") {
+    if (gameOver && e.code === "Space" && !storyMode) {
       resetGame();
     }
     if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
-
       if (isCutscenePlaying) {
-        return
+        return;
       }
 
       if (level < 3) {
@@ -353,7 +379,10 @@ window.onload = function () {
             let countdownInterval = setInterval(function () {
               countdown--;
               if (countdown > 0) {
-                $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+                $("#countdown-img").attr(
+                  "src",
+                  `./sources/background/${countdown}.png`
+                );
               } else {
                 clearInterval(countdownInterval);
                 $("#countdown-img").remove();
@@ -364,7 +393,6 @@ window.onload = function () {
             }, 1000);
           });
         });
-
       } else {
         playCutscene(level3ending, () => {
           level = 1;
@@ -372,7 +400,6 @@ window.onload = function () {
           startMenu.style.display = "block";
           board.style.display = "none";
         });
-    
       }
     }
   });
@@ -402,7 +429,6 @@ function setupCanvas() {
 let lastTime = 0;
 
 function update(time = 0) {
-
   // 아마 일시정지 구현을 위한 처리라고 생각이 든다.
   if (!isAnimationRunning) {
     console.log("animation stopping");
@@ -419,15 +445,25 @@ function update(time = 0) {
 
   // 만약 게임이 끝났다면...
   if (gameOver) {
-    context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
-    context.textAlign = "center";
-    context.fillText(
-      "Game Over: Press 'Space' to Restart",
-      boardWidth / 2,
-      400
-    );
-    context.textAlign = "left";
+    isAnimationRunning = false;
+    if (storyMode) {
+      board.style.display = "none";
+      gameOverImg.style.display = "block";
+      setTimeout(() => {
+        gameOverImg.style.display = "none";
+        gameOverMenu.style.display = "block";
+      }, 2000);
+    } else {
+      context.fillStyle = "lightBlue";
+      context.font = "25px 'DOSIyagiMedium'";
+      context.textAlign = "center";
+      context.fillText(
+        "Game Over: Press 'Space' to Restart",
+        boardWidth / 2,
+        400
+      );
+      context.textAlign = "left";
+    }
     return;
   }
 
@@ -440,7 +476,6 @@ function update(time = 0) {
   context.moveTo(0, gameOverLine);
   context.lineTo(boardWidth, gameOverLine);
   context.stroke();
-
 
   //check time limit
   if (!gameOver && !levelCompleted) {
@@ -465,9 +500,15 @@ function update(time = 0) {
     }
   }
 
-  // player
+  // player  공 이미지 변경을 위해 fillRect->drawImage로 변경
   context.fillStyle = "lightgreen";
-  context.fillRect(player.x, player.y, player.width, player.height);
+  context.drawImage(
+    player.img,
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  );
 
   // ball
   context.fillStyle = "white";
@@ -545,8 +586,8 @@ function update(time = 0) {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = Math.floor(timeLeft % 60);
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  context.font = "20px sans-serif";
-  context.fillText(`time left: ${timeString}`, 660, 25);
+  context.font = "20px 'DOSIyagiMedium'";
+  context.fillText(`time left: ${timeString}`, 642, 25);
 
   //display lines left
   context.fillText(`lines left:${linesLeft}`, 10, 25);
@@ -576,7 +617,7 @@ function update(time = 0) {
       levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
     } else {
       levelCompletedText =
-        "You completed every level!: Press 'Space' to go back to the Main Menu";
+        "You Completed Every Level!: Press 'Space' to Continue";
     }
     //공, 바 못 움직이게
     ball.velocityX = 0;
@@ -584,7 +625,7 @@ function update(time = 0) {
     player.velocityX = 0;
 
     context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
+    context.font = "20px 'DOSIyagiMedium'";
     context.textAlign = "center";
     context.fillText(levelCompletedText, boardWidth / 2, 350);
 
@@ -605,7 +646,7 @@ function update(time = 0) {
       isAnimationRunning = false;
     }
 
-    //점수로 변환되는 시간 표시시
+    //점수로 변환되는 시간 표시
     let scoreMinutes = Math.floor(leftTimeToScore / 60);
     let scoreSeconds = Math.floor(leftTimeToScore % 60);
     let scoreTimeString = `${scoreMinutes}:${scoreSeconds
@@ -624,7 +665,7 @@ function update(time = 0) {
 
       context.textAlign = "center";
 
-      context.fillText(`TIME LEFT: ${leftTimeToScore}`, boardWidth / 2, 400);
+      context.fillText(`TIME LEFT: ${scoreTimeString}`, boardWidth / 2, 400);
 
       context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
 
@@ -721,46 +762,49 @@ function rightCollision(ball, block) {
 
 //#endregion
 
-
 // 13*12
 const patterns = [
   //level1
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
-  ],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+  // ],
   //level2
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
-  ],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+  //   [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+  //   [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+  //   [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+  // ],
 
   //level3
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-  ],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  // ],
 ];
 
 let level = 0;
@@ -771,7 +815,6 @@ let blockFallCounter = 0;
 let linesLeft;
 let blockRows = initBlockRows;
 
-
 function createBlocks() {
   pattern = patterns[level - 1];
   maxRows = patterns[level - 1].length;
@@ -781,19 +824,21 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-
         //#region 변경 block 생성 수정
         // 확률에 따라 색상 및 HP 결정
         const rand = Math.random();
         let block;
 
-        if (rand < 0.05) { // 5% 확률: 초록색
+        if (rand < 0.05) {
+          // 5% 확률: 초록색
           block = new green_Enemy(2, 0, 0, r, c);
           block.color();
-        } else if (rand < 0.30) { // 다음 25% 확률: 빨간색
+        } else if (rand < 0.3) {
+          // 다음 25% 확률: 빨간색
           block = new red_Enemy(2, 0, 0, r, c);
           block.color();
-        } else { // 나머지 70% 확률: 검정색
+        } else {
+          // 나머지 70% 확률: 검정색
           block = new black_Enemy(1, 0, 0, r, c);
           block.color();
         }
@@ -851,7 +896,7 @@ function updateBlocks(deltaTime) {
       }
     }
 
-/*  
+    /*  
     blockArray = [];
     blockRows = 3;
     score = 0;
@@ -860,7 +905,7 @@ function updateBlocks(deltaTime) {
     if (block.HP == -1) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
-      block.x = blockX + block.col * (block.width + 2);;
+      block.x = blockX + block.col * (block.width + 2);
       block.y = blockY + visibleRowIndex * (block.height + 2);
 
       context.globalAlpha = block.alpha ?? 1.0;
@@ -909,7 +954,6 @@ function resetGame() {
     requestAnimationFrame(update); // SetInterval과 비슷한 역할을 한다.
     isAnimationRunning = true;
   }
-
 }
 
 // 컷신 재생
@@ -927,7 +971,8 @@ function playCutscene(images, onComplete) {
     if (currentCutsceneIndex >= images.length) {
       endCutscene(onComplete);
     } else {
-      document.getElementById("cutscene-img").src = images[currentCutsceneIndex];
+      document.getElementById("cutscene-img").src =
+        images[currentCutsceneIndex];
     }
   }, 2000);
 }
@@ -940,11 +985,9 @@ function endCutscene(callback) {
   if (callback) callback();
 }
 
-
 //#region Enemy 모든 클래스 정의
-// Enemy 
+// Enemy
 class Enemy {
-
   // 생성자
   constructor(HP, x, y, r, c) {
     this.HP = HP;
