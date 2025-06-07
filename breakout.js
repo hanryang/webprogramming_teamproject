@@ -437,6 +437,8 @@ function update(time = 0) {
     if (block.HP <= -1 || block.breaking) continue;
     if (block.row >= startRow) {
       if (detectCollision(ball, block)) {
+        const collisionSound = new Audio("./sources/sound/collision.wav");
+        collisionSound.play();
         block.HP -= 1; // 충돌 시 HP 감소
         let collDirect = getCollisionDirection(ball, block);
         if (collDirect) {
