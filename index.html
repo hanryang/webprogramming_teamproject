@@ -17,12 +17,12 @@
           <button id="level_select"><img src="./sources/button/stage.png" alt="난이도 선택" /></button>
           <button id="setting"><img src="./sources/button/setting.png" alt="환경 설정" /></button>
         </div>
-      <img id="logo" src="./sources/ui/bughunter_title.png" alt="BUG HUNTER" />
+      <!-- <img id="logo" src="./sources/ui/bughunter_title.png" alt="BUG HUNTER" />
       <div id="button-box">
         <img src="./sources/ui/btn_start.png" id="game_start" class="menu-btn" />
         <img src="./sources/ui/btn_stage.png" id="level_select" class="menu-btn" />
         <img src="./sources/ui/btn_setting.png" id="setting" class="menu-btn" />
-      </div>
+      </div> -->
     </div>
 
     <div id="level_select_menu">
@@ -60,12 +60,12 @@
               music 1
             </label>
             <label class="radio-label">
-              <input type="radio" name="music" value="music2" checked />
+              <input type="radio" name="music" value="music2" />
               <span class="radio-custom"></span>
               music 2
             </label>
             <label class="radio-label">
-              <input type="radio" name="music" value="music3" checked />
+              <input type="radio" name="music" value="music3" />
               <span class="radio-custom"></span>
               music 3
             </label>
@@ -74,24 +74,27 @@
 
         <section id="ball_panel" class="panel hidden">
           <h2># Ball</h2>
-          <form id="ball_form">
-            <label class="radio-label">
+          <form id="ball_form" class="ball-form">
+            <label class="ball-radio-label">
               <input type="radio" name="ball" value="small">
               <span class="radio-custom"></span>
-              점수 x1.5
+              <span class="ball-text">점수 x1.5</span>
+              <img src="sources/ball/ball-S.png" class="ball-img" alt="공1">
             </label>
-            <label class="radio-label">
-              <input type="radio" name="ball" value="medium">
+            <label class="ball-radio-label">
+              <input type="radio" name="ball" value="medium" checked>
               <span class="radio-custom"></span>
-              점수 x1
+              <span class="ball-text">점수 x1</span>
+              <img src="sources/ball/ball-M.png" class="ball-img" alt="공2">
             </label>
-            <label class="radio-label">
+            <label class="ball-radio-label">
               <input type="radio" name="ball" value="large">
               <span class="radio-custom"></span>
-              점수 x0.5
+              <span class="ball-text">점수 x0.5</span>
+              <img src="sources/ball/ball-L.png" class="ball-img" alt="공3">
             </label>
           </form>
-        </section>
+      </section>
 
         <section id="back" class="panel hidden">
           <h2>&gt; Back</h2>

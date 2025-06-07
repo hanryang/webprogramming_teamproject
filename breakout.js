@@ -43,6 +43,9 @@ let ball = {
   velocityY: ballVelocityY,
 };
 
+// ball 옵션
+
+
 //blocks
 let blockArray = [];
 let blockWidth = 55;
@@ -124,6 +127,9 @@ window.onload = function () {
     score = 0;
       // 게임 시작 클릭 후 UI를 숨긴다
       // $("#game_ui").hide();
+
+    // bgm 플레이
+    playBGM(selectedMusic); 
     // 카운트다운 텍스트 생성 및 표시
     let countdown = 3;
 
@@ -269,10 +275,7 @@ window.onload = function () {
     bgmPlayer = new Audio(musicMap[musicKey]);
     bgmPlayer.loop = true;
     bgmPlayer.volume = 0.5;
-    bgmPlayer.play();
   }
-
-  playBGM(selectedMusic); // 초기 재생
 
   musicForm.addEventListener("change", (e) => {
     if (e.target.name === "music") {
@@ -285,7 +288,6 @@ window.onload = function () {
   ballForm.addEventListener("change", (e) => {
     if (e.target.name === "ball") {
       selectedBall = e.target.value;
-      console.log("선택된 Ball:", selectedBall);
       // TODO: 실제 공 크기/속성 변경 로직을 여기에 추가
     }
   });

@@ -302,7 +302,76 @@ body {
   background-image: url("sources/background/panelFrame.png");
   background-size: 350px 300px;
   background-repeat: no-repeat;
+}
 
+#ball_panel{
+  width: 350px;
+  height: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-top: 28px;
+}
+
+#ball_panel h2{
+  font-size: 48px;
+  font-family: 'DOSIyagiMedium';
+  margin: 0 0 16px 0;
+  letter-spacing: -2px;
+}
+
+.ball-form{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.ball-radio-label{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.ball-radio-label input[type="radio"]{
+  position: absolute;
+  opacity: 0;
+}
+
+.ball-radio-label .radio-custom{
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 2px solid #222;
+  background: #fff;
+  display: block;
+  margin-bottom: 2px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  transition: background 0.2s;
+}
+
+.ball-radio-label input[type="radio"]:checked ~ .radio-custom {
+  background: #FFC800;
+  border-color: #FFC800;
+}
+
+.ball-text {
+  font-size: 20px;
+  font-family: 'DOSIyagiMedium', sans-serif;
+  color: #111;
+  margin-bottom: 2px;
+}
+
+.ball-img {
+  margin-top: 8px;
+  filter: drop-shadow(0 1px 2px #aaa);
 }
 
 .hidden{
