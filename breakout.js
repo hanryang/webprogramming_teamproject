@@ -696,13 +696,13 @@ function createBlocks() {
         let block;
 
         if (rand < 0.05) { // 5% 확률: 초록색
-          block = new green_Enemy(2, 0, 0, r, c, 0, 1);
+          block = new green_Enemy(2, 0, 0, r, c);
           block.color();
         } else if (rand < 0.30) { // 다음 25% 확률: 빨간색
-          block = new red_Enemy(2, 0, 0, r, c, 0, 1);
+          block = new red_Enemy(2, 0, 0, r, c);
           block.color();
         } else { // 나머지 70% 확률: 검정색
-          block = new black_Enemy(1, 0, 0, r, c, 1, 1);
+          block = new black_Enemy(1, 0, 0, r, c);
           block.color();
         }
         //#endregion
@@ -854,7 +854,7 @@ function endCutscene(callback) {
 class Enemy {
 
   // 생성자
-  constructor(HP, x, y, r, c, velocityX, velocityY) {
+  constructor(HP, x, y, r, c) {
     this.HP = HP;
     this.breaking = false;
     this.x = x;
@@ -863,23 +863,15 @@ class Enemy {
     this.col = c;
     this.width = 55;
     this.height = 55;
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
     this.colorValue; // 기본 색상
     this.alpha = 1.0; // 블록의 투명도
 
     this.image = new Image();
   }
 
-  update() {
-    this.x += this.velocityX;
-    this.y += this.velocityY;
-  }
-
   loadImage(path) {
     this.image.src = path;
   }
-
   // 죽는 메소드
   die() {
     return this.HP <= 0;
