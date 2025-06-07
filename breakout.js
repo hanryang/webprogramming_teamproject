@@ -69,6 +69,8 @@ let currentCutsceneImages = [];
 let currentCutsceneIndex = 0;
 let cutsceneTimer = null;
 
+let startopening = false; // 맨 처음 컷신 구분
+
 // onclick 내부 수정 사항-> Start 버튼 클릭 시 intro1~intro4 재생
 const introImages = [
   "./sources/cutscene/intro1.png",
@@ -145,11 +147,62 @@ window.onload = function () {
   document.getElementById("cutscene-skip").onclick = function () {
     if (cutsceneTimer) clearInterval(cutsceneTimer);
     endCutscene();
+
+    console.log(startopening);
+    console.log(level);
+
+    if (!startopening) {
+      if (level <= 3) {
+        level++;
+      }
+    }
+
+    if (startopening) {
+      startopening = false;
+    }
+
+    if (level <= 3) {
+          console.log("level", level);
+          let countdown = 3;
+
+          // 카운트다운 이미지 요소 생성
+          let countdownImg = $("<img id='countdown-img'>").css({
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "200px",
+            zIndex: 100,
+          });
+
+          countdownImg.attr("src", `./sources/background/${countdown}.png`);
+          $("body").append(countdownImg);
+
+          let countdownInterval = setInterval(function () {
+            countdown--;
+            if (countdown > 0) {
+              $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+            } else {
+              clearInterval(countdownInterval);
+              $("#countdown-img").remove();
+
+              board.style.display = "block"; // 컷신 후 보드 표시
+              resetGame(); // 게임 시작
+            }
+          }, 1000);
+    } else {
+      level = 1;
+      isAnimationRunning = false;
+      startMenu.style.display = "block";
+      board.style.display = "none";
+
+    }
   };
 
   setupCanvas();
 
   start.onclick = function () {
+    startopening = true;
     startMenu.style.display = "none";
     board.style.display = "none"; // 컷신이 끝난 뒤 보여지므로 숨김
     level = 1;
@@ -243,8 +296,8 @@ window.onload = function () {
         if (level === 2) nextstartingCutscene = level3beginning;
 
         playCutscene(nextendingCutscene, () => {
+          // level++;
           playCutscene(nextstartingCutscene, () => {
-            level++;
             let countdown = 3;
 
             // 카운트다운 이미지 요소 생성
@@ -635,39 +688,39 @@ const patterns = [
   //level1
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+    // [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+    // [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    // [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
   ],
   //level2
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
+    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+    // [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+    // [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    // [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    // [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
   ],
 
   //level3
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+    // [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    // [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    // [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    // [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    // [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
   ],
 ];
 
