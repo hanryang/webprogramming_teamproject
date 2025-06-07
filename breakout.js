@@ -63,6 +63,42 @@ let leftTimetoScoreInit = false;
 let leftTimeToScoreHandled = false;
 let leftTimeToScoreStartTime;
 
+// 컷신 상태 변수 및 타이머
+let isCutscenePlaying = false;
+let currentCutsceneImages = [];
+let currentCutsceneIndex = 0;
+let cutsceneTimer = null;
+
+// onclick 내부 수정 사항-> Start 버튼 클릭 시 intro1~intro4 재생
+const introImages = [
+  "./sources/cutscene/intro1.png",
+  "./sources/cutscene/intro2.png",
+  "./sources/cutscene/intro3.png",
+  "./sources/cutscene/intro4.png",
+];
+
+const level1ending = [
+  "./sources/cutscene/fin1.png",
+];
+
+const level2beginning = [
+  "./sources/cutscene/pre2_1.png",
+  "./sources/cutscene/pre2_2.png",
+];
+
+const level2ending = [
+  "./sources/cutscene/fin2.png",
+];
+
+const level3beginning = [
+  "./sources/cutscene/pre3.png",
+];
+
+const level3ending = [
+  "./sources/cutscene/fin3.png",
+];
+
+
 const levelSettings = [
   {
     ballVelocityX: 0,
@@ -105,47 +141,50 @@ window.onload = function () {
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
 
+  // 컷신 스킵 버튼 기능
+  document.getElementById("cutscene-skip").onclick = function () {
+    if (cutsceneTimer) clearInterval(cutsceneTimer);
+    endCutscene();
+  };
+
   setupCanvas();
 
   start.onclick = function () {
-    
-    // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
     startMenu.style.display = "none";
-    board.style.display = "block";
+    board.style.display = "none"; // 컷신이 끝난 뒤 보여지므로 숨김
     level = 1;
     score = 0;
 
-    let countdown = 3;
+    // 컷신 재생 후 게임 시작
+    playCutscene(introImages, () => {
+      let countdown = 3;
 
-    // 카운트다운 이미지 요소 생성
-    let countdownImg = $("<img id='countdown-img'>").css({
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: "200px",
-      zIndex: 100,
+      // 카운트다운 이미지 요소 생성
+      let countdownImg = $("<img id='countdown-img'>").css({
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "200px",
+        zIndex: 100,
+      });
+
+      countdownImg.attr("src", `./sources/background/${countdown}.png`);
+      $("body").append(countdownImg);
+
+      let countdownInterval = setInterval(function () {
+        countdown--;
+        if (countdown > 0) {
+          $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        } else {
+          clearInterval(countdownInterval);
+          $("#countdown-img").remove();
+
+          board.style.display = "block"; // 컷신 후 보드 표시
+          resetGame(); // 게임 시작
+        }
+      }, 1000);
     });
-
-    // 최초 3초 이미지 설정
-    countdownImg.attr("src", `./sources/background/${countdown}.png`);
-    $("body").append(countdownImg);
-
-    // 1초 간격으로 이미지 교체
-    let countdownInterval = setInterval(function () {
-      countdown--;
-
-      if (countdown > 0) {
-        // 2 → 1 → 0 이미지로 교체
-        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
-      } else {
-        clearInterval(countdownInterval);
-        $("#countdown-img").remove();
-
-        // 3초 후 게임 시작
-        resetGame();
-      }
-    }, 1000);
   };
 
   levelSelect.onclick = function () {
@@ -188,15 +227,58 @@ window.onload = function () {
       resetGame();
     }
     if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
+
       if (level < 3) {
-        level++;
-        resetGame();
+        // 다음 레벨로 넘어가기 전에 컷신 재생
+
+        let nextendingCutscene = level1ending;
+        if (level === 2) nextendingCutscene = level2ending;
+        else if (level === 3) nextendingCutscene = level3ending;
+
+        let nextstartingCutscene = level2beginning;
+        if (level === 2) nextstartingCutscene = level3beginning;
+
+        playCutscene(nextendingCutscene, () => {
+          playCutscene(nextstartingCutscene, () => {
+            level++;
+            let countdown = 3;
+
+            // 카운트다운 이미지 요소 생성
+            let countdownImg = $("<img id='countdown-img'>").css({
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "200px",
+              zIndex: 100,
+            });
+
+            countdownImg.attr("src", `./sources/background/${countdown}.png`);
+            $("body").append(countdownImg);
+
+            let countdownInterval = setInterval(function () {
+              countdown--;
+              if (countdown > 0) {
+                $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+              } else {
+                clearInterval(countdownInterval);
+                $("#countdown-img").remove();
+
+                board.style.display = "block"; // 컷신 후 보드 표시
+                resetGame(); // 게임 시작
+              }
+            }, 1000);
+          });
+        });
+
       } else {
-        //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
-        level = 1;
-        isAnimationRunning = false;
-        startMenu.style.display = "block";
-        board.style.display = "none";
+        playCutscene(level3ending, () => {
+          level = 1;
+          isAnimationRunning = false;
+          startMenu.style.display = "block";
+          board.style.display = "none";
+        });
+    
       }
     }
   });
@@ -549,39 +631,39 @@ const patterns = [
   //level1
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+    // [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    // [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+    // [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+    // [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
   ],
   //level2
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
+    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+    // [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+    // [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+    // [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    // [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    // [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
   ],
 
   //level3
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+    // [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    // [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    // [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    // [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+    // [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+    // [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
   ],
 ];
 
@@ -733,6 +815,36 @@ function resetGame() {
 
 }
 
+// 컷신 재생
+function playCutscene(images, onComplete) {
+  isCutscenePlaying = true;
+  currentCutsceneImages = images;
+  currentCutsceneIndex = 0;
+
+  document.getElementById("cutscene").style.display = "block";
+  document.getElementById("cutscene-img").src = images[currentCutsceneIndex];
+  board.style.display = "none";
+
+  cutsceneTimer = setInterval(() => {
+    currentCutsceneIndex++;
+    if (currentCutsceneIndex >= images.length) {
+      endCutscene(onComplete);
+    } else {
+      document.getElementById("cutscene-img").src = images[currentCutsceneIndex];
+    }
+  }, 2000);
+}
+
+//  컷신 종료 후 게임 시작
+function endCutscene(callback) {
+  document.getElementById("cutscene").style.display = "none";
+  isCutscenePlaying = false;
+  if (cutsceneTimer) clearInterval(cutsceneTimer);
+  if (callback) callback();
+}
+
+
+//#region Enemy 모든 클래스 정의
 // Enemy 
 class Enemy {
 
@@ -834,4 +946,5 @@ class green_Enemy extends Enemy {
       this.HP = 0;
     }
   }
+  //#endregion
 }
