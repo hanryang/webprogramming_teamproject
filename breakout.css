@@ -433,7 +433,7 @@ body {
 
 #revenge:hover,
 #revenge:active {
-  filter: contrast(1.8);
+  filter: contrast(2);
 }
 
 #cutscene {

@@ -25,9 +25,9 @@ let player = {
 // music
 let bgmPlayer = null;
 const musicMap = {
-  music1 : "./sources/music/music1.mp3",
-  music2 : "./sources/music/music2.mp3",
-  music3 : "./sources/music/music3.mp3"
+  music1: "./sources/music/music1.mp3",
+  music2: "./sources/music/music2.mp3",
+  music3: "./sources/music/music3.mp3",
 };
 
 //ball
@@ -158,7 +158,9 @@ window.onload = function () {
   const ballForm = document.getElementById("ball_form");
 
   let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
-  let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
+  let selectedMusic = musicForm.querySelector(
+    "input[name='music']:checked"
+  ).value;
   // 컷신 스킵 버튼 기능
   document.getElementById("cutscene-skip").onclick = function () {
     if (cutsceneTimer) clearInterval(cutsceneTimer);
@@ -225,9 +227,32 @@ window.onload = function () {
     if (e.code in keys) keys[e.code] = true;
 
     if (gameOver && e.code === "Space" && !storyMode) {
-      resetGame();
+      countdown321();
     }
-    if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      !storyMode
+    ) {
+      if (level < 3) {
+        level++;
+        countdown321();
+      } else {
+        //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
+        level = 1;
+        isAnimationRunning = false;
+        startMenu.style.display = "block";
+        board.style.display = "none";
+      }
+    }
+
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      storyMode
+    ) {
       if (isCutscenePlaying) {
         return;
       }
@@ -268,8 +293,7 @@ window.onload = function () {
   const btnSetting = document.getElementById("setting");
 
   btnSetting.addEventListener("click", function () {
-
-    console.log(document.getElementById("settings_menu")); 
+    console.log(document.getElementById("settings_menu"));
     // 메인 메뉴 숨기기
     startMenu.style.display = "none";
     // 설정 메뉴 보이기
@@ -302,7 +326,6 @@ window.onload = function () {
       }
     });
   });
-
 
   function playBGM(musicKey) {
     if (bgmPlayer) {
@@ -345,7 +368,6 @@ window.onload = function () {
       }
     }
   });
-
 };
 
 //캔버스 화질 개선
@@ -556,7 +578,7 @@ function update(time = 0) {
       levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
     } else {
       levelCompletedText =
-        "You Completed Every Level!: Press 'Space' to Continue";
+        "You Completed Every Level!: Press 'Space' to go back to the Main Menu";
     }
     //공, 바 못 움직이게
     ball.velocityX = 0;
@@ -704,42 +726,47 @@ function rightCollision(ball, block) {
 // 13*12
 const patterns = [
   //level1
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-  ],
+
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+  // ],
   //level2
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
-  ],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+  //   [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+  //   [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+  //   [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+  // ],
 
   //level3
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-  ],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  // ],
+
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
 ];
 
 let level = 0;
@@ -1017,7 +1044,9 @@ class green_Enemy extends Enemy {
   //#endregion
 }
 
+//카운트다운 함수로 만듦
 function countdown321() {
+  board.style.display = "none";
   let countdown = 3;
 
   // 카운트다운 이미지 요소 생성
