@@ -20,9 +20,9 @@ let player = {
 // music
 let bgmPlayer = null;
 const musicMap = {
-  music1 : "sources/music/music1.mp3",
-  music2 : "sources/music/music2.mp3",
-  music3 : "sources/music/music3.mp3"
+  music1 : "./sources/music/music1.mp3",
+  music2 : "./sources/music/music2.mp3",
+  music3 : "./sources/music/music3.mp3"
 };
 
 //ball
@@ -71,6 +71,8 @@ let leftTimetoScoreInit = false;
 let leftTimeToScoreHandled = false;
 let leftTimeToScoreStartTime;
 
+let hardness = 1; // 0.5: easy, 1: medium, 1.5: hard
+
 const levelSettings = [
   {
     ballVelocityX: 0,
@@ -112,6 +114,16 @@ window.onload = function () {
   board.height = boardHeight;
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
+
+
+  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
+  const panels = document.querySelectorAll("#settings_content .panel");
+
+  const musicForm = document.getElementById("music_form");
+  const ballForm = document.getElementById("ball_form");
+
+  let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
+  let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
 
   setupCanvas();
 
@@ -219,17 +231,13 @@ window.onload = function () {
   const btnSetting = document.getElementById("setting");
 
   btnSetting.addEventListener("click", function () {
+
+    console.log(document.getElementById("settings_menu")); 
     // 메인 메뉴 숨기기
     startMenu.style.display = "none";
     // 설정 메뉴 보이기
     settingsMenu.style.display = "flex";
   });
-
-  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
-  const panels = document.querySelectorAll("#settings_content .panel");
-
-  const musicForm = document.getElementById("music_form");
-  const ballForm = document.getElementById("ball_form");
 
   // 네비게이션 아이템 클릭
   settingsNavItems.forEach((navItem) => {
@@ -259,8 +267,6 @@ window.onload = function () {
   });
 
 
-  let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
-
   function playBGM(musicKey) {
     if (bgmPlayer) {
       bgmPlayer.pause();
@@ -272,8 +278,6 @@ window.onload = function () {
     bgmPlayer.play();
   }
 
-  playBGM(selectedMusic); // 초기 재생
-
   musicForm.addEventListener("change", (e) => {
     if (e.target.name === "music") {
       selectedMusic = e.target.value;
@@ -281,12 +285,27 @@ window.onload = function () {
     }
   });
 
-  let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
   ballForm.addEventListener("change", (e) => {
     if (e.target.name === "ball") {
       selectedBall = e.target.value;
       console.log("선택된 Ball:", selectedBall);
-      // TODO: 실제 공 크기/속성 변경 로직을 여기에 추가
+      switch (selectedBall) {
+        case "small":
+          ball.rad = 4;
+          hardness = 1.5; // hard
+          break;
+        case "medium":
+          ball.rad = 8;
+          hardness = 1; // medium
+          break;
+        case "large":
+          ball.rad = 12;
+          hardness = 0.5; // easy
+          break;
+        default:
+          ball.rad = 8; // 기본값
+          hardness = 1; // medium
+      }
     }
   });
 
@@ -531,7 +550,7 @@ function update(time = 0) {
       context.textAlign = "left";
     } else {
       let increment = Math.min(1, leftTimeToScore);
-      score += increment * scorePerSecondLeft;
+      score += increment * scorePerSecondLeft * hardness; // 점수 증가
       leftTimeToScore -= increment;
 
       context.textAlign = "center";
@@ -731,21 +750,6 @@ const patterns = [
     [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
     [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
   ],
-  //level3
-  // [
-  //   [1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1],
-  //   [0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
-  //   [1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1],
-  //   [1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-  //   [1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
-  //   [0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-  //   [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
-  //   [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-  // ],
   //level3
   [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
