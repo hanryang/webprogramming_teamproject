@@ -7,13 +7,7 @@ let context;
 //players
 let playerWidth = 180; //500 for testing, 80 normal
 let playerHeight = 25;
-let playerWidth = 180; //500 for testing, 80 normal
-let playerHeight = 25;
 let playerVelocityX = 10; //프레임당 10px 이동
-
-//바 이미지 가져오기기
-const playerImg = new Image();
-playerImg.src = "./sources/gameBar.png";
 
 //바 이미지 가져오기기
 const playerImg = new Image();
@@ -25,7 +19,6 @@ let player = {
   width: playerWidth,
   height: playerHeight,
   velocityX: playerVelocityX,
-  img: playerImg,
   img: playerImg,
 };
 
@@ -142,9 +135,6 @@ window.onload = function () {
   gameOverImg = document.getElementById("gameover_screen");
   gameOverMenu = document.getElementById("gameover_menu");
   revenge = document.getElementById("revenge");
-  gameOverImg = document.getElementById("gameover_screen");
-  gameOverMenu = document.getElementById("gameover_menu");
-  revenge = document.getElementById("revenge");
 
   returnB = document.getElementById("return");
   board = document.getElementById("board");
@@ -175,8 +165,6 @@ window.onload = function () {
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
 
-    levelSelectMenu.style.backgroundImage =
-      "url('./sources/background/stageSelect.png')";
     levelSelectMenu.style.backgroundImage =
       "url('./sources/background/stageSelect.png')";
   };
@@ -219,7 +207,6 @@ window.onload = function () {
   document.addEventListener("keydown", (e) => {
     if (e.code in keys) keys[e.code] = true;
 
-    if (gameOver && e.code === "Space" && !storyMode) {
     if (gameOver && e.code === "Space" && !storyMode) {
       resetGame();
     }
@@ -315,25 +302,6 @@ function update(time = 0) {
       );
       context.textAlign = "left";
     }
-    isAnimationRunning = false;
-    if (storyMode) {
-      board.style.display = "none";
-      gameOverImg.style.display = "block";
-      setTimeout(() => {
-        gameOverImg.style.display = "none";
-        gameOverMenu.style.display = "block";
-      }, 2000);
-    } else {
-      context.fillStyle = "lightBlue";
-      context.font = "25px 'DOSIyagiMedium'";
-      context.textAlign = "center";
-      context.fillText(
-        "Game Over: Press 'Space' to Restart",
-        boardWidth / 2,
-        400
-      );
-      context.textAlign = "left";
-    }
     return;
   }
 
@@ -372,13 +340,6 @@ function update(time = 0) {
 
   // player  공 이미지 변경을 위해 fillRect->drawImage로 변경
   context.fillStyle = "lightgreen";
-  context.drawImage(
-    player.img,
-    player.x,
-    player.y,
-    player.width,
-    player.height
-  );
   context.drawImage(
     player.img,
     player.x,
@@ -503,7 +464,6 @@ function update(time = 0) {
 
     context.fillStyle = "lightBlue";
     context.font = "20px 'DOSIyagiMedium'";
-    context.font = "20px 'DOSIyagiMedium'";
     context.textAlign = "center";
     context.fillText(levelCompletedText, boardWidth / 2, 350);
 
@@ -525,7 +485,6 @@ function update(time = 0) {
     }
 
     //점수로 변환되는 시간 표시
-    //점수로 변환되는 시간 표시
     let scoreMinutes = Math.floor(leftTimeToScore / 60);
     let scoreSeconds = Math.floor(leftTimeToScore % 60);
     let scoreTimeString = `${scoreMinutes}:${scoreSeconds
@@ -544,7 +503,6 @@ function update(time = 0) {
 
       context.textAlign = "center";
 
-      context.fillText(`TIME LEFT: ${scoreTimeString}`, boardWidth / 2, 400);
       context.fillText(`TIME LEFT: ${scoreTimeString}`, boardWidth / 2, 400);
 
       context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
@@ -777,7 +735,6 @@ function updateBlocks(deltaTime) {
     }
 
     /*  
-    /*  
     blockArray = [];
     blockRows = 3;
     score = 0;
@@ -786,7 +743,6 @@ function updateBlocks(deltaTime) {
     if (block.HP == -1) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
-      block.x = blockX + block.col * (block.width + 2);
       block.x = blockX + block.col * (block.width + 2);
       block.y = blockY + visibleRowIndex * (block.height + 2);
 

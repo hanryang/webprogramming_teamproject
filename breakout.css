@@ -2,27 +2,14 @@
   font-family: "DOSIyagiMedium";
   src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2")
     format("woff2");
-  font-family: "DOSIyagiMedium";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2")
-    format("woff2");
   font-weight: normal;
   font-style: normal;
 }
 * {
   font-family: "DOSIyagiMedium", sans-serif;
 }
-* {
-  font-family: "DOSIyagiMedium", sans-serif;
-}
 
 body {
-  margin: 20;
-  height: 100vh;
-  display: flex;
-  justify-content: center; /* 수평 중앙 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
-  background-color: black;
-  overflow: hidden;
   margin: 20;
   height: 100vh;
   display: flex;
@@ -49,7 +36,6 @@ body {
   justify-content: center;
   /* 수직 중앙 정렬 */
 
-  background-image: url("./sources/background/mainScreen.png");
   background-image: url("./sources/background/mainScreen.png");
   background-size: cover;
   background-position: center;
@@ -81,14 +67,6 @@ body {
   padding: 0;
   margin: 10px 0;
   cursor: pointer;
-  border: none;
-  padding: 0;
-  margin: 10px 0;
-  cursor: pointer;
-}
-
-#start_menu button:hover {
-  filter: brightness(1.5);
 }
 
 #start_menu button:hover {
@@ -170,7 +148,6 @@ body {
 #return {
   margin: 20px 0;
   font-family: "DOSIyagiMedium";
-  font-family: "DOSIyagiMedium";
   align-self: flex-start;
   font-size: 30px;
   color: white;
@@ -179,9 +156,6 @@ body {
 
 /* 캔버스와 버튼을 담은 전체 컨테이너 */
 #game-container {
-  position: relative;
-  width: 80vw; /* 화면 너비의 80% */
-  height: 80vh; /* 화면 높이의 80% */
   position: relative;
   width: 80vw; /* 화면 너비의 80% */
   height: 80vh; /* 화면 높이의 80% */
@@ -195,9 +169,9 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: black;
-  border-top: 5px solid lightgray;
-  border-left: 5px solid lightgray;
-  border-right: 5px solid lightgray;
+  border-top: 5px solid skyblue;
+  border-left: 5px solid skyblue;
+  border-right: 5px solid skyblue;
 }
 
 .hover {
@@ -219,19 +193,6 @@ body {
   gap: 20px; /* 버튼 간 간격 */
   background-color: steelblue;
   border-radius: 10px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  background-color: steelblue;
-  color: white;
-  display: flex;
-  flex-direction: column; /* 수직 정렬 */
-  align-items: center;
-  gap: 20px; /* 버튼 간 간격 */
-  background-color: steelblue;
-  border-radius: 10px;
 }
 
 #game_start {
@@ -239,17 +200,9 @@ body {
   font-size: 16px;
   cursor: pointer;
   z-index: 10;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 10;
 }
 
 #settings {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 10;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
