@@ -208,9 +208,32 @@ window.onload = function () {
     if (e.code in keys) keys[e.code] = true;
 
     if (gameOver && e.code === "Space" && !storyMode) {
-      resetGame();
+      countdown321();
     }
-    if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      !storyMode
+    ) {
+      if (level < 3) {
+        level++;
+        countdown321();
+      } else {
+        //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
+        level = 1;
+        isAnimationRunning = false;
+        startMenu.style.display = "block";
+        board.style.display = "none";
+      }
+    }
+
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      storyMode
+    ) {
       if (isCutscenePlaying) {
         return;
       }
@@ -455,7 +478,7 @@ function update(time = 0) {
       levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
     } else {
       levelCompletedText =
-        "You Completed Every Level!: Press 'Space' to Continue";
+        "You Completed Every Level!: Press 'Space' to go back to the Main Menu";
     }
     //공, 바 못 움직이게
     ball.velocityX = 0;
@@ -603,9 +626,6 @@ function rightCollision(ball, block) {
 // 13*12
 const patterns = [
   //level1
-  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
-  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
-  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
 
   // [
   //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -643,6 +663,10 @@ const patterns = [
   //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
   //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   // ],
+
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
 ];
 
 let level = 0;
@@ -756,6 +780,7 @@ function updateBlocks(deltaTime) {
 }
 
 function resetGame() {
+  context.clearRect(0, 0, board.width, board.height);
   const settings = levelSettings[level - 1];
   // 게임 초기화
   gameOver = false;
@@ -920,7 +945,9 @@ class green_Enemy extends Enemy {
   //#endregion
 }
 
+//카운트다운 함수로 만듦
 function countdown321() {
+  board.style.display = "none";
   let countdown = 3;
 
   // 카운트다운 이미지 요소 생성
