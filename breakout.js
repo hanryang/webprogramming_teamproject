@@ -159,21 +159,111 @@ window.onload = function () {
     board.style.display = "block";
     level = 1;
     score = 0;
-    resetGame();
+    let countdown = 3;
+
+    // 카운트다운 이미지 요소 생성
+    let countdownImg = $("<img id='countdown-img'>").css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "200px",
+      zIndex: 100,
+    });
+
+    // 최초 3초 이미지 설정
+    countdownImg.attr("src", `./sources/background/${countdown}.png`);
+    $("body").append(countdownImg);
+
+    // 1초 간격으로 이미지 교체
+    let countdownInterval = setInterval(function () {
+      countdown--;
+
+      if (countdown > 0) {
+        // 2 → 1 → 0 이미지로 교체
+        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+      } else {
+        clearInterval(countdownInterval);
+        $("#countdown-img").remove();
+
+        // 3초 후 게임 시작
+        resetGame();
+      }
+    }, 1000);
   };
   level2.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 2;
     score = 0;
-    resetGame();
+    let countdown = 3;
+
+    // 카운트다운 이미지 요소 생성
+    let countdownImg = $("<img id='countdown-img'>").css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "200px",
+      zIndex: 100,
+    });
+
+    // 최초 3초 이미지 설정
+    countdownImg.attr("src", `./sources/background/${countdown}.png`);
+    $("body").append(countdownImg);
+
+    // 1초 간격으로 이미지 교체
+    let countdownInterval = setInterval(function () {
+      countdown--;
+
+      if (countdown > 0) {
+        // 2 → 1 → 0 이미지로 교체
+        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+      } else {
+        clearInterval(countdownInterval);
+        $("#countdown-img").remove();
+
+        // 3초 후 게임 시작
+        resetGame();
+      }
+    }, 1000);
   };
   level3.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 3;
     score = 0;
-    resetGame();
+    let countdown = 3;
+
+    // 카운트다운 이미지 요소 생성
+    let countdownImg = $("<img id='countdown-img'>").css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "200px",
+      zIndex: 100,
+    });
+
+    // 최초 3초 이미지 설정
+    countdownImg.attr("src", `./sources/background/${countdown}.png`);
+    $("body").append(countdownImg);
+
+    // 1초 간격으로 이미지 교체
+    let countdownInterval = setInterval(function () {
+      countdown--;
+
+      if (countdown > 0) {
+        // 2 → 1 → 0 이미지로 교체
+        $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+      } else {
+        clearInterval(countdownInterval);
+        $("#countdown-img").remove();
+
+        // 3초 후 게임 시작
+        resetGame();
+      }
+    }, 1000);
   };
 
   returnB.onclick = function () {
