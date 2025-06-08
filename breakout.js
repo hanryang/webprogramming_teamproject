@@ -351,15 +351,6 @@ window.onload = function () {
     settingsMenu.style.display = "flex";
   });
 
-  function initSettingsPanel(){
-    panels.forEach(panel => panel.classList.remove("active"));
-    document.getElementById("music_panel").classList.add("active");
-    settingsNavItems.forEach(navItem=>navItem.classList.remove("active"));
-    document.querySelector('#settings_nav .nav-item[data-panel="music_panel"]').classList.add("active");
-  }
-
-  initSettingsPanel();
-
   // 네비게이션 아이템 클릭
   settingsNavItems.forEach((navItem) => {
     navItem.addEventListener("click", function () {
@@ -378,7 +369,6 @@ window.onload = function () {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
-          initSettingsPanel();
         }, 100);
       }
       // 그 외 패널이면 해당 패널만 보여주기

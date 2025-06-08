@@ -392,7 +392,7 @@ body {
   
 }
 
-.panel.hidden {
+.panel hidden {
   display: none;
 }
 
@@ -403,7 +403,6 @@ body {
   color: #000; /* 검은색 */
   font-family: "DOSIyagiMedium";
 }
-
 .radio-label {
   display: flex;
   padding-left: 50px;
