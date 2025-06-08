@@ -236,7 +236,7 @@ body {
   border-radius: 10px;
 }
 
-#setting {
+#settings {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
@@ -258,7 +258,7 @@ body {
   border: 4px solid #fff;
   z-index: 50;
   display: none;
-  /* flex-direction: row; */
+  flex-direction: row;
   overflow: hidden;
 }
 
@@ -318,31 +318,38 @@ body {
   background-image: url("sources/background/panelFrame.png");
   background-size: 350px 300px;
   background-repeat: no-repeat;
+  display: none;
 }
 
-#ball_panel {
+.panel.active {
+  display: block;
+}
+
+#ball_panel.active {
   width: 350px;
-  height: 310px;
+  height: 340px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  padding-top: 28px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding-top: 52px;
 }
 
 #ball_panel h2 {
   font-size: 48px;
   font-family: "DOSIyagiMedium";
-  margin: 0 0 16px 0;
+  margin: 0;
+  padding-left: 40px;
+  align-self: flex-start;
   letter-spacing: -2px;
 }
 
 .ball-form {
-  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: flex-start;
   gap: 10px;
 }
 
@@ -368,14 +375,10 @@ body {
   background: #fff;
   display: block;
   margin-bottom: 2px;
-  margin-top: 4px;
-  box-sizing: border-box;
-  transition: background 0.2s;
 }
 
 .ball-radio-label input[type="radio"]:checked ~ .radio-custom {
-  background: #ffc800;
-  border-color: #ffc800;
+  background: black;
 }
 
 .ball-text {

@@ -317,7 +317,7 @@ window.onload = function () {
 
   // 환경 설정
   const settingsMenu = document.getElementById("settings_menu");
-  const btnSetting = document.getElementById("setting");
+  const btnSetting = document.getElementById("settings");
 
   btnSetting.addEventListener("click", function () {
     console.log(document.getElementById("settings_menu"));
@@ -330,32 +330,28 @@ window.onload = function () {
   // 네비게이션 아이템 클릭
   settingsNavItems.forEach((navItem) => {
     navItem.addEventListener("click", function () {
-      const targetPanel = navItem.getAttribute("data-panel");
-
-      // 모든 nav-item에서 active 클래스 제거
+      const targetPanel = navItem.dataset.panel;
       settingsNavItems.forEach((ni) => ni.classList.remove("active"));
-      // 클릭된 항목에만 active 클래스 추가
       navItem.classList.add("active");
-
-      // 모든 패널 숨기기
-      panels.forEach((panel) => panel.classList.add("hidden"));
+      panels.forEach((panel) => panel.classList.remove("active"));
 
       // “Back”이 클릭된 경우 → 설정 레이어 닫고 메인 메뉴로 복귀
       if (targetPanel === "back") {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
-          //메인메뉴 복귀했다 다시 돌아와도 처음 setting 들어갔을 때와 같은 방식으로 표시됨됨
+          //메인메뉴 복귀했다 다시 돌아와도 처음 setting 들어갔을 때와 같은 방식으로 표시됨
           settingsNavItems.forEach((ni) => ni.classList.remove("active"));
+          const musicNav = document.querySelector('[data-panel="music_panel"]');
+          musicNav.classList.add("active");
           document
-            .querySelector('[data-panel="music_panel"]')
+            .getElementById(musicNav.dataset.panel)
             .classList.add("active");
-          document.getElementById("music_panel").classList.add("active");
         }, 100);
       }
       // 그 외 패널이면 해당 패널만 보여주기
       else {
-        document.getElementById(targetPanel).classList.remove("hidden");
+        document.getElementById(targetPanel).classList.add("active");
       }
     });
   });
