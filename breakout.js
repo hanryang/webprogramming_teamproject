@@ -5,9 +5,13 @@ const boardHeight = 600;
 let context;
 
 //players
-let playerWidth = 200; //500 for testing, 80 normal
-let playerHeight = 10;
-let playerVelocityX = 5; //프레임당 10px 이동
+let playerWidth = 180; //500 for testing, 80 normal
+let playerHeight = 25;
+let playerVelocityX = 10; //프레임당 10px 이동
+
+//바 이미지 가져오기기
+const playerImg = new Image();
+playerImg.src = "./sources/gameBar.png";
 
 let player = {
   x: boardWidth / 2 - playerWidth / 2,
@@ -15,14 +19,15 @@ let player = {
   width: playerWidth,
   height: playerHeight,
   velocityX: playerVelocityX,
+  img: playerImg,
 };
 
 // music
 let bgmPlayer = null;
 const musicMap = {
-  music1 : "sources/music/music1.mp3",
-  music2 : "sources/music/music2.mp3",
-  music3 : "sources/music/music3.mp3"
+  music1: "./sources/music/music1.mp3",
+  music2: "./sources/music/music2.mp3",
+  music3: "./sources/music/music3.mp3",
 };
 
 //ball
@@ -42,9 +47,6 @@ let ball = {
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
 };
-
-// ball 옵션
-
 
 //blocks
 let blockArray = [];
@@ -74,22 +76,54 @@ let leftTimetoScoreInit = false;
 let leftTimeToScoreHandled = false;
 let leftTimeToScoreStartTime;
 
+let hardness = 1; // 0.5: easy, 1: medium, 1.5: hard
+let storyMode = true;
+
+// 컷신 상태 변수 및 타이머
+let isCutscenePlaying = false;
+let currentCutsceneImages = [];
+let currentCutsceneIndex = 0;
+let cutsceneTimer = null;
+
+let startopening = false; // 컷신 시작 여부
+
+// onclick 내부 수정 사항-> Start 버튼 클릭 시 intro1~intro4 재생
+const introImages = [
+  "./sources/cutscene/intro1.png",
+  "./sources/cutscene/intro2.png",
+  "./sources/cutscene/intro3.png",
+  "./sources/cutscene/intro4.png",
+];
+
+const level1ending = ["./sources/cutscene/fin1.png"];
+
+const level2beginning = [
+  "./sources/cutscene/pre2_1.png",
+  "./sources/cutscene/pre2_2.png",
+];
+
+const level2ending = ["./sources/cutscene/fin2.png"];
+
+const level3beginning = ["./sources/cutscene/pre3.png"];
+
+const level3ending = ["./sources/cutscene/fin3.png"];
+
 const levelSettings = [
   {
     ballVelocityX: 0,
-    ballVelocityY: 5,
+    ballVelocityY: 10,
     playerWidth: 250,
     timeLimit: 90,
   },
   {
     ballVelocityX: 0,
-    ballVelocityY: 6,
+    ballVelocityY: 10,
     playerWidth: 200,
     timeLimit: 80,
   },
   {
     ballVelocityX: 0,
-    ballVelocityY: 7,
+    ballVelocityY: 10,
     playerWidth: 150,
     timeLimit: 70,
   },
@@ -109,6 +143,9 @@ window.onload = function () {
   level1 = document.getElementById("lev_1");
   level2 = document.getElementById("lev_2");
   level3 = document.getElementById("lev_3");
+  gameOverImg = document.getElementById("gameover_screen");
+  gameOverMenu = document.getElementById("gameover_menu");
+  revenge = document.getElementById("revenge");
 
   returnB = document.getElementById("return");
   board = document.getElementById("board");
@@ -116,79 +153,120 @@ window.onload = function () {
   board.width = boardWidth;
   context = board.getContext("2d"); //used for drawing on the board
 
+  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
+  const panels = document.querySelectorAll("#settings_content .panel");
+
+  const musicForm = document.getElementById("music_form");
+  const ballForm = document.getElementById("ball_form");
+
+  let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
+  let selectedMusic = musicForm.querySelector(
+    "input[name='music']:checked"
+  ).value;
+  // 컷신 스킵 버튼 기능
+  // 컷신 스킵 버튼 기능
+  document.getElementById("cutscene-skip").onclick = function () {
+    if (cutsceneTimer) clearInterval(cutsceneTimer);
+    endCutscene();
+
+    if (!startopening) {
+      if (level <= 3) {
+        level++;
+      }
+    }
+
+    if (startopening) {
+      startopening = false;
+    }
+
+    if (level <= 3) {
+      console.log("level", level);
+      let countdown = 3;
+
+      // 카운트다운 이미지 요소 생성
+      let countdownImg = $("<img id='countdown-img'>").css({
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "200px",
+        zIndex: 100,
+      });
+
+      countdownImg.attr("src", `./sources/background/${countdown}.png`);
+      $("body").append(countdownImg);
+
+      let countdownInterval = setInterval(function () {
+        countdown--;
+        if (countdown > 0) {
+          $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+        } else {
+          clearInterval(countdownInterval);
+          $("#countdown-img").remove();
+
+          board.style.display = "block"; // 컷신 후 보드 표시
+          resetGame(); // 게임 시작
+        }
+      }, 1000);
+    } else {
+      level = 1;
+      isAnimationRunning = false;
+      startMenu.style.display = "block";
+      board.style.display = "none";
+
+    }
+  };
+
   setupCanvas();
 
+  //#region 클릭 처리
   start.onclick = function () {
-    
-    // 게임 시작 클릭 시, 메인 메뉴를 숨기고 게임 보드를 표시
+    startopening = true;
     startMenu.style.display = "none";
-    board.style.display = "block";
+    board.style.display = "none"; // 컷신이 끝난 뒤 보여지므로 숨김
+    storyMode = true;
     level = 1;
     score = 0;
-      // 게임 시작 클릭 후 UI를 숨긴다
-      // $("#game_ui").hide();
-
-    // bgm 플레이
-    playBGM(selectedMusic); 
-    // 카운트다운 텍스트 생성 및 표시
-    let countdown = 3;
-
-    // 카운트 다운
-    let countdownDiv = $("<div id='countdown'></div>").css({
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      fontSize: "60px",
-      fontWeight: "bold",
-      color: "red",
-      zIndex: 100
-    }).text(countdown);
-
-    // 카운트 다운 생성
-    $("body").append(countdownDiv);
-
-    // countdownInterval을 통해 3초간 게임을 시작하지 않고 기다린다.
-    let countdownInterval = setInterval(function () {
-      countdown--;
-      if (countdown > 0) {
-        $("#countdown").text(countdown);
-      } else {
-        clearInterval(countdownInterval);
-        $("#countdown").remove();
-
-        // ⏱ 3초 후에 게임 시작
-        // requestAnimationFrame(update);
-        resetGame();
-        // $(document).on("keydown", movePlayer);
-      }
-    }, 1000); // 1초 간격으로 카운트다운
+    // 컷신 재생 후 게임 시작
+    playCutscene(introImages, countdown321);
   };
 
   levelSelect.onclick = function () {
     startMenu.style.display = "none";
     levelSelectMenu.style.display = "block";
+
+    levelSelectMenu.style.backgroundImage =
+      "url('./sources/background/stageSelect.png')";
   };
   level1.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 1;
     score = 0;
-    resetGame();
+    storyMode = false;
+    countdown321();
   };
   level2.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 2;
     score = 0;
-    resetGame();
+    storyMode = false;
+    countdown321();
   };
   level3.onclick = function () {
     levelSelectMenu.style.display = "none";
     board.style.display = "block";
     level = 3;
     score = 0;
-    resetGame();
+    storyMode = false;
+    countdown321();
+  };
+  revenge.onclick = () => {
+    storyMode = true;
+    gameOverMenu.style.display = "none";
+    board.style.display = "block";
+    countdown321();
   };
 
   returnB.onclick = function () {
@@ -199,19 +277,60 @@ window.onload = function () {
   document.addEventListener("keydown", (e) => {
     if (e.code in keys) keys[e.code] = true;
 
-    if (gameOver && e.code === "Space") {
-      resetGame();
+    if (gameOver && e.code === "Space" && !storyMode) {
+      countdown321();
     }
-    if (levelCompleted && e.code === "Space" && leftTimeToScoreHandled) {
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      !storyMode
+    ) {
       if (level < 3) {
-        level++;
-        resetGame();
+        // level++;
+        countdown321();
       } else {
         //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
         level = 1;
         isAnimationRunning = false;
         startMenu.style.display = "block";
         board.style.display = "none";
+      }
+    }
+
+    if (
+      levelCompleted &&
+      e.code === "Space" &&
+      leftTimeToScoreHandled &&
+      storyMode
+    ) {
+      if (isCutscenePlaying) {
+        return;
+      }
+
+      if (level < 3) {
+        // 다음 레벨로 넘어가기 전에 컷신 재생
+
+        let nextendingCutscene = level1ending;
+        if (level === 2) nextendingCutscene = level2ending;
+        else if (level === 3) nextendingCutscene = level3ending;
+
+        let nextstartingCutscene = level2beginning;
+        if (level === 2) nextstartingCutscene = level3beginning;
+
+        playCutscene(nextendingCutscene, () => {
+          playCutscene(nextstartingCutscene, () => {
+            level++;
+            countdown321();
+          });
+        });
+      } else {
+        playCutscene(level3ending, () => {
+          level = 1;
+          isAnimationRunning = false;
+          startMenu.style.display = "block";
+          board.style.display = "none";
+        });
       }
     }
   });
@@ -225,17 +344,21 @@ window.onload = function () {
   const btnSetting = document.getElementById("setting");
 
   btnSetting.addEventListener("click", function () {
+    console.log(document.getElementById("settings_menu"));
     // 메인 메뉴 숨기기
     startMenu.style.display = "none";
     // 설정 메뉴 보이기
     settingsMenu.style.display = "flex";
   });
 
-  const settingsNavItems = document.querySelectorAll("#settings_nav .nav-item");
-  const panels = document.querySelectorAll("#settings_content .panel");
+  function initSettingsPanel(){
+    panels.forEach(panel => panel.classList.remove("active"));
+    document.getElementById("music_panel").classList.add("active");
+    settingsNavItems.forEach(navItem=>navItem.classList.remove("active"));
+    document.querySelector('#settings_nav .nav-item[data-panel="music_panel"]').classList.add("active");
+  }
 
-  const musicForm = document.getElementById("music_form");
-  const ballForm = document.getElementById("ball_form");
+  initSettingsPanel();
 
   // 네비게이션 아이템 클릭
   settingsNavItems.forEach((navItem) => {
@@ -255,6 +378,7 @@ window.onload = function () {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
+          initSettingsPanel();
         }, 100);
       }
       // 그 외 패널이면 해당 패널만 보여주기
@@ -264,9 +388,6 @@ window.onload = function () {
     });
   });
 
-
-  let selectedMusic = musicForm.querySelector("input[name='music']:checked").value;
-
   function playBGM(musicKey) {
     if (bgmPlayer) {
       bgmPlayer.pause();
@@ -275,6 +396,7 @@ window.onload = function () {
     bgmPlayer = new Audio(musicMap[musicKey]);
     bgmPlayer.loop = true;
     bgmPlayer.volume = 0.5;
+    bgmPlayer.play();
   }
 
   musicForm.addEventListener("change", (e) => {
@@ -284,14 +406,29 @@ window.onload = function () {
     }
   });
 
-  let selectedBall = ballForm.querySelector("input[name='ball']:checked").value;
   ballForm.addEventListener("change", (e) => {
     if (e.target.name === "ball") {
       selectedBall = e.target.value;
-      // TODO: 실제 공 크기/속성 변경 로직을 여기에 추가
+      console.log("선택된 Ball:", selectedBall);
+      switch (selectedBall) {
+        case "small":
+          ball.rad = 4;
+          hardness = 1.5; // hard
+          break;
+        case "medium":
+          ball.rad = 8;
+          hardness = 1; // medium
+          break;
+        case "large":
+          ball.rad = 12;
+          hardness = 0.5; // easy
+          break;
+        default:
+          ball.rad = 8; // 기본값
+          hardness = 1; // medium
+      }
     }
   });
-
 };
 
 //캔버스 화질 개선
@@ -314,7 +451,6 @@ function setupCanvas() {
 let lastTime = 0;
 
 function update(time = 0) {
-
   // 아마 일시정지 구현을 위한 처리라고 생각이 든다.
   if (!isAnimationRunning) {
     console.log("animation stopping");
@@ -331,15 +467,25 @@ function update(time = 0) {
 
   // 만약 게임이 끝났다면...
   if (gameOver) {
-    context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
-    context.textAlign = "center";
-    context.fillText(
-      "Game Over: Press 'Space' to Restart",
-      boardWidth / 2,
-      400
-    );
-    context.textAlign = "left";
+    isAnimationRunning = false;
+    if (storyMode) {
+      board.style.display = "none";
+      gameOverImg.style.display = "block";
+      setTimeout(() => {
+        gameOverImg.style.display = "none";
+        gameOverMenu.style.display = "block";
+      }, 2000);
+    } else {
+      context.fillStyle = "lightBlue";
+      context.font = "25px 'DOSIyagiMedium'";
+      context.textAlign = "center";
+      context.fillText(
+        "Game Over: Press 'Space' to Restart",
+        boardWidth / 2,
+        400
+      );
+      context.textAlign = "left";
+    }
     return;
   }
 
@@ -352,7 +498,6 @@ function update(time = 0) {
   context.moveTo(0, gameOverLine);
   context.lineTo(boardWidth, gameOverLine);
   context.stroke();
-
 
   //check time limit
   if (!gameOver && !levelCompleted) {
@@ -377,9 +522,15 @@ function update(time = 0) {
     }
   }
 
-  // player
+  // player  공 이미지 변경을 위해 fillRect->drawImage로 변경
   context.fillStyle = "lightgreen";
-  context.fillRect(player.x, player.y, player.width, player.height);
+  context.drawImage(
+    player.img,
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  );
 
   // ball
   context.fillStyle = "white";
@@ -432,20 +583,18 @@ function update(time = 0) {
 
   for (let block of blockArray) {
     // if (block.break || block.breaking) continue;
-    if (block.HP === 0) continue;
+    if (block.HP <= -1 || block.breaking) continue;
     if (block.row >= startRow) {
       if (detectCollision(ball, block)) {
+        const collisionSound = new Audio("./sources/sound/collision.wav");
+        collisionSound.play();
         block.HP -= 1; // 충돌 시 HP 감소
-        if (block.colorValue == "green") {
-          block.position_change(); // 초록색 블록은 위치 변경
-        }
-        block.color(); // 색상 업데이트
         let collDirect = getCollisionDirection(ball, block);
         if (collDirect) {
           console.log(collDirect);
 
           handleCollision(ball, block, collDirect);
-          if (block.HP <= 0) {
+          if (block.HP == 0) {
             block.breaking = true;
             blockCount -= 1;
           }
@@ -459,8 +608,8 @@ function update(time = 0) {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = Math.floor(timeLeft % 60);
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  context.font = "20px sans-serif";
-  context.fillText(`time left: ${timeString}`, 660, 25);
+  context.font = "20px 'DOSIyagiMedium'";
+  context.fillText(`time left: ${timeString}`, 642, 25);
 
   //display lines left
   context.fillText(`lines left:${linesLeft}`, 10, 25);
@@ -490,7 +639,7 @@ function update(time = 0) {
       levelCompletedText = "LEVEL COMPLETED!: Press 'Space' to Continue";
     } else {
       levelCompletedText =
-        "You completed every level!: Press 'Space' to go back to the Main Menu";
+        "You Completed Every Level!: Press 'Space' to go back to the Main Menu";
     }
     //공, 바 못 움직이게
     ball.velocityX = 0;
@@ -498,7 +647,7 @@ function update(time = 0) {
     player.velocityX = 0;
 
     context.fillStyle = "lightBlue";
-    context.font = "20px sans-serif";
+    context.font = "20px 'DOSIyagiMedium'";
     context.textAlign = "center";
     context.fillText(levelCompletedText, boardWidth / 2, 350);
 
@@ -519,7 +668,7 @@ function update(time = 0) {
       isAnimationRunning = false;
     }
 
-    //점수로 변환되는 시간 표시시
+    //점수로 변환되는 시간 표시
     let scoreMinutes = Math.floor(leftTimeToScore / 60);
     let scoreSeconds = Math.floor(leftTimeToScore % 60);
     let scoreTimeString = `${scoreMinutes}:${scoreSeconds
@@ -533,12 +682,12 @@ function update(time = 0) {
       context.textAlign = "left";
     } else {
       let increment = Math.min(1, leftTimeToScore);
-      score += increment * scorePerSecondLeft;
+      score += increment * scorePerSecondLeft * hardness; // 점수 증가
       leftTimeToScore -= increment;
 
       context.textAlign = "center";
 
-      context.fillText(`TIME LEFT: ${leftTimeToScore}`, boardWidth / 2, 400);
+      context.fillText(`TIME LEFT: ${scoreTimeString}`, boardWidth / 2, 400);
 
       context.fillText(`SCORE: ${score}`, boardWidth / 2, 450);
 
@@ -550,77 +699,6 @@ function update(time = 0) {
 function outOfBounds(xPosition) {
   return xPosition < 0 || xPosition + player.width > boardWidth;
 }
-
-// 무작위 block을 만들어 배열에 저장해두는 함수이다. 배열에는 각 block 객체를 집어넣었다.
-function createblocks() {
-    blockArray = []; // clear blockArray
-
-    // 0~10개의 적을 무작위로 생성
-    blockCount = Math.floor(Math.random() * 11); // 0~10
-
-    for (let i = 0; i < blockCount; i++) {
-        // 열 위치는 무작위로 지정 (가로 위치)
-        const c = Math.floor(Math.random() * blockColumns); // 열 인덱스
-        const x = blockX + c * 50 + c * 100;
-        const y = blockY; // 처음엔 상단에서 시작
-
-        // 확률에 따라 색상 및 HP 결정
-        const rand = Math.random();
-        let block;
-
-        // if (rand < 0.90) { // 5% 확률: 초록색
-        //     block = new green_Enemy(2, 0, 0, 0, -1); // 목숨, x, y, 속도X, 속도Y
-        //     block.color();
-        // } else if (rand < 0.95) { // 다음 25% 확률: 빨간색
-        //     block = new red_Enemy(2, 0, 0, 0, -1);
-        //     block.color();
-        // } else { // 나머지 70% 확률: 검정색
-        //     block = new black_Enemy(1, 0, 0, -1, -1);
-        //     block.color();
-        // }
-
-        blockArray.push(block);
-    }
-
-    // 총 적 수 저장
-    blockCount = blockArray.length;
-}
-
-
-// blockArray에 있는 적들을 그리는 함수이다. 만약에 HP가 0일 경우 더이상 그리지 않는다.
-// function blockDraw() {
-//     for (let i = 0; i < blockArray.length; i++) {
-//         let block = blockArray[i];
-
-//         if (block.HP > 0) {
-//             // 충돌 판정
-//             let wasHit = false;
-
-//             if (topCollision(ball, block) || bottomCollision(ball, block)) {
-//                 ball.velocityY *= -1;
-//                 block.HP -= 1;
-//                 wasHit = true;
-//             } else if (leftCollision(ball, block) || rightCollision(ball, block)) {
-//                 ball.velocityX *= -1;
-//                 block.HP -= 1;
-//                 wasHit = true;
-//             }
-
-//             // HP가 줄었을 경우에만 색 갱신
-//             if (wasHit) {
-//                 if (block instanceof green_Enemy) {
-//                   block.position_change();
-//                 }
-//                 if (block.color) block.color();
-//                 if (block.HP === 0) blockCount -= 1;
-//             }
-
-//             // 그리기 및 이동
-//             block.draw(context);
-//             block.update(); // x/y 이동
-//           }
-//   }
-// }
 
 // 충돌 감지 코드
 function detectCollision(ball, block) {
@@ -706,60 +784,50 @@ function rightCollision(ball, block) {
 
 //#endregion
 
-
 // 13*12
 const patterns = [
   //level1
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]
-  ],
+
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+  //   [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+  //   [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+  // ],
   //level2
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0]
-  ],
+  // [
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+  //   [0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+  //   [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+  //   [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+  //   [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+  // ],
+
   //level3
   // [
-  //   [1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1],
-  //   [0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
-  //   [1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1],
-  //   [1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-  //   [1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
-  //   [0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0],
-  //   [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-  //   [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
-  //   [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-  //   [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  //   [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+  //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
+  //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   // ],
-  //level3
-  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-  ],
+
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
+  [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
 ];
 
 let level = 0;
@@ -770,7 +838,6 @@ let blockFallCounter = 0;
 let linesLeft;
 let blockRows = initBlockRows;
 
-
 function createBlocks() {
   pattern = patterns[level - 1];
   maxRows = patterns[level - 1].length;
@@ -780,33 +847,22 @@ function createBlocks() {
   for (let r = 0; r < maxRows; r++) {
     for (let c = 0; c < blockColumns; c++) {
       if (pattern[r][c]) {
-
-        // 이부분 수정
-        // let block = {
-        //   break: false,
-        //   breaking: false,
-        //   alpha: 1.0,
-        //   row: r,
-        //   col: c,
-        //   x: 0,
-        //   y: 0,
-        //   width: blockWidth,
-        //   height: blockHeight,
-        // };
-
         //#region 변경 block 생성 수정
         // 확률에 따라 색상 및 HP 결정
         const rand = Math.random();
         let block;
 
-        if (rand < 0.05) { // 5% 확률: 초록색
-          block = new green_Enemy(2, 0, 0, r, c, 0, 1);
+        if (rand < 0.05) {
+          // 5% 확률: 초록색
+          block = new green_Enemy(2, 0, 0, r, c);
           block.color();
-        } else if (rand < 0.30) { // 다음 25% 확률: 빨간색
-          block = new red_Enemy(2, 0, 0, r, c, 0, 1);
+        } else if (rand < 0.3) {
+          // 다음 25% 확률: 빨간색
+          block = new red_Enemy(2, 0, 0, r, c);
           block.color();
-        } else { // 나머지 70% 확률: 검정색
-          block = new black_Enemy(1, 0, 0, r, c, 1, 1);
+        } else {
+          // 나머지 70% 확률: 검정색
+          block = new black_Enemy(1, 0, 0, r, c);
           block.color();
         }
         //#endregion
@@ -836,31 +892,49 @@ function updateBlocks(deltaTime) {
 
   // 블록이 깨지는 애니메이션 처리
   for (let block of blockArray) {
-    // if (block.breaking) {
-    if (block.HP == 0) {
+    if (block.HP == 1 && block.colorValue != "white") {
+      block.alpha -= 0.05;
+      if (block.alpha <= 0) {
+        if (block.colorValue == "green") {
+          block.position_change(); // 초록색 블록은 위치 변경
+        }
+        block.alpha = 0;
+        block.color();
+      }
+    }
+    if (block.HP == 1 && block.colorValue == "white" && block.alpha < 1.0) {
+      block.alpha += 0.05;
+      if (block.alpha >= 1.0) {
+        block.alpha = 1.0;
+      }
+    }
+    if (block.HP === 0 && block.breaking) {
+      // block.alpha -= 0.01;
+      // if (block.alpha <= 0) {
       block.alpha -= 0.05;
       if (block.alpha <= 0) {
         block.alpha = 0;
         block.breaking = false;
-        block.HP == -1; // 블록이 깨졌으므로 HP를 0으로 설정
+        block.HP = -1; // 블록이 깨졌으므로 HP를 -1으로 설정
       }
     }
 
-/*  
+    /*  
     blockArray = [];
     blockRows = 3;
     score = 0;
     createblocks();
 */
-    if (block.HP == 0) continue;
+    if (block.HP == -1) continue;
     if (block.row >= startRow) {
       let visibleRowIndex = block.row - startRow;
-      block.x = blockX + block.col * (block.width + 2);;
+      block.x = blockX + block.col * (block.width + 2);
       block.y = blockY + visibleRowIndex * (block.height + 2);
 
       context.globalAlpha = block.alpha ?? 1.0;
-      context.fillStyle = block.colorValue ?? "white"; // 기본 색상 및 색 지정
-      context.fillRect(block.x, block.y, block.width, block.height);
+      // context.fillStyle = block.colorValue ?? "white"; // 기본 색상 및 색 지정
+      block.draw(context);
+      // context.fillRect(block.x, block.y, block.width, block.height);
       context.globalAlpha = 1.0;
     }
   }
@@ -871,6 +945,7 @@ function resetGame() {
   // 게임 초기화
   gameOver = false;
   levelCompleted = false;
+  isCutscenePlaying = false;
   player.velocityX = playerVelocityX;
   player.width = settings.playerWidth;
 
@@ -902,14 +977,42 @@ function resetGame() {
     requestAnimationFrame(update); // SetInterval과 비슷한 역할을 한다.
     isAnimationRunning = true;
   }
-
 }
 
-// Enemy 
-class Enemy {
+// 컷신 재생
+function playCutscene(images, onComplete) {
+  isCutscenePlaying = true;
+  currentCutsceneImages = images;
+  currentCutsceneIndex = 0;
 
+  document.getElementById("cutscene").style.display = "block";
+  document.getElementById("cutscene-img").src = images[currentCutsceneIndex];
+  board.style.display = "none";
+
+  cutsceneTimer = setInterval(() => {
+    currentCutsceneIndex++;
+    if (currentCutsceneIndex >= images.length) {
+      endCutscene(onComplete);
+    } else {
+      document.getElementById("cutscene-img").src =
+        images[currentCutsceneIndex];
+    }
+  }, 2000);
+}
+
+//  컷신 종료 후 게임 시작
+function endCutscene(callback) {
+  document.getElementById("cutscene").style.display = "none";
+  // isCutscenePlaying = false;
+  if (cutsceneTimer) clearInterval(cutsceneTimer);
+  if (callback) callback();
+}
+
+//#region Enemy 모든 클래스 정의
+// Enemy
+class Enemy {
   // 생성자
-  constructor(HP, x, y, r, c, velocityX, velocityY) {
+  constructor(HP, x, y, r, c) {
     this.HP = HP;
     this.breaking = false;
     this.x = x;
@@ -918,21 +1021,15 @@ class Enemy {
     this.col = c;
     this.width = 55;
     this.height = 55;
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
     this.colorValue; // 기본 색상
+    this.alpha = 1.0; // 블록의 투명도
+
+    this.image = new Image();
   }
 
-  update() {
-    this.x += this.velocityX;
-    this.y += this.velocityY;
+  loadImage(path) {
+    this.image.src = path;
   }
-
-  // 내려가는 메소드
-  move_down() {
-    this.y += this.velocityY;
-  }
-
   // 죽는 메소드
   die() {
     return this.HP <= 0;
@@ -940,10 +1037,13 @@ class Enemy {
 
   // block를 그리는 메소드
   draw(context) {
-    context.beginPath();
-    context.fillStyle = this.colorValue;
-    context.fillRect(this.x, this.y, this.width, this.height);
-    context.closePath();
+    if (this.image.complete) {
+      context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    } else {
+      this.image.onload = () => {
+        context.drawImage(this.image, this.x, this.y, this.width, this.height);
+      };
+    }
   }
 }
 
@@ -951,6 +1051,7 @@ class Enemy {
 class black_Enemy extends Enemy {
   color() {
     this.colorValue = "white";
+    this.loadImage("./sources/block/white.png");
   }
 }
 
@@ -959,8 +1060,10 @@ class red_Enemy extends Enemy {
   color() {
     if (this.HP === 2) {
       this.colorValue = "red";
+      this.loadImage("./sources/block/red.png");
     } else if (this.HP === 1) {
       this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
     }
   }
 }
@@ -970,8 +1073,10 @@ class green_Enemy extends Enemy {
   color() {
     if (this.HP === 2) {
       this.colorValue = "green";
+      this.loadImage("./sources/block/green.png");
     } else if (this.HP === 1) {
       this.colorValue = "white";
+      this.loadImage("./sources/block/white.png");
     }
   }
 
@@ -996,4 +1101,38 @@ class green_Enemy extends Enemy {
       this.HP = 0;
     }
   }
+
+  //#endregion
+}
+
+//카운트다운 함수로 만듦
+function countdown321() {
+  board.style.display = "none";
+  let countdown = 3;
+
+  // 카운트다운 이미지 요소 생성
+  let countdownImg = $("<img id='countdown-img'>").css({
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "200px",
+    zIndex: 100,
+  });
+
+  countdownImg.attr("src", `./sources/background/${countdown}.png`);
+  $("body").append(countdownImg);
+
+  let countdownInterval = setInterval(function () {
+    countdown--;
+    if (countdown > 0) {
+      $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
+    } else {
+      clearInterval(countdownInterval);
+      $("#countdown-img").remove();
+
+      board.style.display = "block"; // 컷신 후 보드 표시
+      resetGame(); // 게임 시작
+    }
+  }, 1000);
 }
