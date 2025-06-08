@@ -392,9 +392,6 @@ body {
   
 }
 
-.panel hidden {
-  display: none;
-}
 
 .panel h2 {
   font-size: 48px;
