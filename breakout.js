@@ -31,7 +31,7 @@ const musicMap = {
 };
 
 //ball
-let ballRad = 8;
+let defaultBallRad = 12;
 
 let ballspeed; // 벡터의 크기 (속력)
 let angle; // 0 ~ 2π 범위의 무작위 각도 (라디안)
@@ -39,13 +39,24 @@ let angle; // 0 ~ 2π 범위의 무작위 각도 (라디안)
 let ballVelocityX; // x 방향 성분
 let ballVelocityY; // y 방향 성분
 
+//공 이미지
+const ballImages = [
+  "./sources/ball/ball-S.png",
+  "./sources/ball/ball-M.png",
+  "./sources/ball/ball-L.png",
+];
+
+const ballImg = new Image();
+ballImg.src = ballImages[1];
+
 // ball의 구조체
 let ball = {
   x: boardWidth / 2,
   y: boardHeight / 2,
-  rad: ballRad,
+  rad: defaultBallRad,
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
+  img: ballImg,
 };
 
 // ball 옵션
@@ -201,8 +212,6 @@ window.onload = function () {
     storyMode = true;
     level = 1;
     score = 0;
-    //bgm 재생
-    playBGM(selectedMusic);
     // 컷신 재생 후 게임 시작
     playCutscene(introImages, countdown321);
   };
@@ -263,7 +272,7 @@ window.onload = function () {
       !storyMode
     ) {
       if (level < 3) {
-        // level++;
+        level++;
         countdown321();
       } else {
         //게임 클리어 시, 스페이스바 누르면 메인 메뉴로 돌아감
@@ -355,7 +364,6 @@ window.onload = function () {
       }
     });
   });
-
   function playBGM(musicKey) {
     if (bgmPlayer) {
       bgmPlayer.pause();
@@ -364,6 +372,7 @@ window.onload = function () {
     bgmPlayer = new Audio(musicMap[musicKey]);
     bgmPlayer.loop = true;
     bgmPlayer.volume = 0.5;
+    bgmPlayer.play();
   }
 
   musicForm.addEventListener("change", (e) => {
@@ -379,20 +388,24 @@ window.onload = function () {
       console.log("선택된 Ball:", selectedBall);
       switch (selectedBall) {
         case "small":
-          ball.rad = 4;
+          ball.rad = 8;
           hardness = 1.5; // hard
+          ballImg.src = ballImages[0];
           break;
         case "medium":
-          ball.rad = 8;
+          ball.rad = defaultBallRad;
           hardness = 1; // medium
+          ballImg.src = ballImages[1];
           break;
         case "large":
-          ball.rad = 12;
+          ball.rad = 20;
           hardness = 0.5; // easy
+          ballImg.src = ballImages[2];
           break;
         default:
-          ball.rad = 8; // 기본값
+          ball.rad = defaultBallRad; // 기본값
           hardness = 1; // medium
+          ballImg.src = ballImages[1];
       }
     }
   });
@@ -490,7 +503,7 @@ function update(time = 0) {
   }
 
   // player  공 이미지 변경을 위해 fillRect->drawImage로 변경
-  context.fillStyle = "lightgreen";
+  context.save();
   context.drawImage(
     player.img,
     player.x,
@@ -499,13 +512,24 @@ function update(time = 0) {
     player.height
   );
 
-  // ball
-  context.fillStyle = "white";
+  // // ball
+  // context.fillStyle = "white";
   ball.x += ball.velocityX;
   ball.y += ball.velocityY;
+
   context.beginPath();
   context.arc(ball.x, ball.y, ball.rad, 0, Math.PI * 2);
-  context.fill();
+  context.closePath();
+  context.clip();
+  context.drawImage(
+    ball.img,
+    ball.x - ball.rad,
+    ball.y - ball.rad,
+    ball.rad * 2,
+    ball.rad * 2
+  );
+  context.restore();
+  // context.fill();
 
   //bar 맞는 위치에 따라 공 굴절 각도 달라짐짐
   if (topCollision(ball, player)) {
@@ -576,6 +600,7 @@ function update(time = 0) {
   const seconds = Math.floor(timeLeft % 60);
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
   context.font = "20px 'DOSIyagiMedium'";
+  context.fillStyle = "lightBlue";
   context.fillText(`time left: ${timeString}`, 642, 25);
 
   //display lines left
@@ -754,7 +779,6 @@ function rightCollision(ball, block) {
 // 13*12
 const patterns = [
   //level1
-
   // [
   //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
@@ -766,7 +790,7 @@ const patterns = [
   //   [0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
   //   [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
   // ],
-  //level2
+  // //level2
   // [
   //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -778,8 +802,7 @@ const patterns = [
   //   [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
   //   [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
   // ],
-
-  //level3
+  // //level3
   // [
   //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -791,7 +814,6 @@ const patterns = [
   //   [0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0],
   //   [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   // ],
-
   [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
   [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
   [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]],
@@ -1100,6 +1122,8 @@ function countdown321() {
 
       board.style.display = "block"; // 컷신 후 보드 표시
       resetGame(); // 게임 시작
+
+      console.log("bgm running?");
     }
   }, 1000);
 }
