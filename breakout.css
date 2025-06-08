@@ -1,21 +1,38 @@
 @font-face {
   font-family: 'DOSIyagiMedium';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') format('woff2');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') 
+  format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-    margin: 20;
-    height: 100vh;
-    display: flex;
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center;     /* 수직 중앙 정렬 */
-    background-color: black;
+  margin: 20;
+  height: 100vh;
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center;     /* 수직 중앙 정렬 */
+  background-color:  #3D3D3D;
+  font-family: "DOSIyagiMedium";
+  font-weight: normal;
+  font-style: normal;
+  overflow: hidden; /* 스크롤바 제거 */
 }
 
+* {
+  font-family: "DOSIyagiMedium", sans-serif;
+}
+
+/* 게임 시작 화면 컨테이너 */
 #start_menu {
+  width: 800px;
+  height: 600px;
+  background-color: #202020;
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -30,7 +47,6 @@ body {
   /* 수평 중앙 정렬 */
   justify-content: center;
   /* 수직 중앙 정렬 */
-
   background-image: url('./sources/background/mainScreen.png');
   background-size: cover;
   background-position: center;
@@ -56,13 +72,60 @@ body {
 
 #start_menu button {
   display: block;
-
-
   background: none;
-    border: none;
-    padding: 0;
-    margin: 10px 0;
-    cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 10px 0;
+  cursor: pointer;
+}
+/* 타이틀 이미지 */
+#logo {
+  width: auto;
+  height: 300px;
+  margin-bottom: 40px;
+  margin-top: 10px;
+}
+
+/* 버튼 박스 */
+#button-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+
+/* 버튼 이미지 스타일 */
+.menu-btn {
+  cursor: pointer;
+  width: 292px; /* 이미지 원본 크기 */
+  height: 68px;
+}
+
+#start_menu button img {
+  width: 200px;
+  /* 필요에 따라 크기 조절 */
+  height: auto;
+  display: block;
+}
+
+/* #level_select_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 800px;
+  height: 600px;
+  background-image: url('');
+}
+
+#level_select_menu button {
+  display: block;
+} */
+
+#start_menu button:hover {
+  filter: brightness(1.5);
 }
 
 #start_menu button img {
@@ -126,6 +189,10 @@ body {
   display: inline-block;
 }
 
+#level_select_menu button:hover {
+  filter: brightness(1.2);
+}
+
 #level_select_menu button img {
   display: block;
   width: 180px;
@@ -135,7 +202,7 @@ body {
 /* 왼쪽 아래 BACK 텍스트 */
 #return {
   margin: 20px 0;
-  font-family: 'DOSIyagiMedium';
+  font-family: "DOSIyagiMedium";
   align-self: flex-start;
   font-size: 30px;
   color: white;
@@ -144,9 +211,9 @@ body {
 
 /* 캔버스와 버튼을 담은 전체 컨테이너 */
 #game-container {
-    position: relative;
-    width: 80vw;   /* 화면 너비의 80% */
-    height: 80vh;  /* 화면 높이의 80% */
+  position: relative;
+  width: 80vw; /* 화면 너비의 80% */
+  height: 80vh; /* 화면 높이의 80% */
 }
 
 /* 캔버스 스타일 */
@@ -156,10 +223,10 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: black;
-  border-top: 5px solid skyblue;
+  background-color: #202020;
+  /* border-top: 5px solid skyblue;
   border-left: 5px solid skyblue;
-  border-right: 5px solid skyblue;
+  border-right: 5px solid skyblue; */
 }
 
 .hover {
@@ -168,26 +235,19 @@ body {
 }
 
 #game_ui {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: steelblue;
-    color: white;
-    display: flex;
-    flex-direction: column;   /* 수직 정렬 */
-    align-items: center;
-    gap: 20px;                /* 버튼 간 간격 */
-    background-color: steelblue;
-    border-radius: 10px;
-}
-
-#game_start {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: steelblue;
+  color: white;
+  display: flex;
+  flex-direction: column; /* 수직 정렬 */
+  align-items: center;
+  gap: 20px; /* 버튼 간 간격 */
+  background-color: steelblue;
+  border-radius: 10px;
 }
 
 #settings {
@@ -195,6 +255,185 @@ body {
     font-size: 16px;
     cursor: pointer;
     z-index: 10;
+}
+
+#settings_menu{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 800px;  
+  height: 600px;  
+  transform: translate(-50%, -50%);
+  background-color: #828181; 
+  background-image: url("sources/background/settingLogo.png");
+  background-size: 518.11px 223.12px;
+  background-repeat: no-repeat;
+  background-position: 0 15px;
+  border: 4px solid #fff;          
+  z-index: 50;       
+  display: none;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+
+#settings_nav{
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 285px;
+  padding-left: 78px;
+}
+  
+#settings_nav ul{
+  list-style: none;
+  padding: 0;
+}
+
+#settings_nav .nav-item{
+  position: relative;
+  width: 291px;
+  height: 68px;
+
+  background-image: url("sources/button/setting-button.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  font-family: 'DOSIyagiMedium',sans-serif;
+  font-size: 48px;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+#settings_nav .nav-item:hover,
+#settings_nav .nav-item.active{
+  filter: brightness(1.2);
+}
+
+#settings_content{
+  flex: 1;
+  position: relative;
+  padding: 50px;
+  color: black;
+  font-family: "DOSIyagiMedium", sans-serif;
+}
+
+.panel{
+  position: absolute;
+  top: 265px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("sources/background/panelFrame.png");
+  background-size: 350px 300px;
+  background-repeat: no-repeat;
+
+}
+
+.hidden{
+  display: none;
+}
+
+.panel h2{
+  font-size: 48px;
+  margin-bottom: 10px;
+  padding-left: 50px;
+  color: #000; /* 검은색 */
+  font-family: 'DOSIyagiMedium';
+}
+
+.radio-label{
+  display: flex;
+  padding-left: 50px;
+  align-items: center;
+
+  font-size: 48px;
+  cursor: pointer;
+  position: relative;
+}
+
+.radio-label input[type="radio"]{
+  position: absolute;
+  opacity: 0;
+  cursor: pointer; 
+  width: 0;
+  height: 0;
+}
+
+.radio-label .radio-custom{
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-image: url("sources/button/Rectangle 151.png"); /* 비어있는 상태 */
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-right: 10px;
+}
+
+.radio-label input[type="radio"]:checked~ .radio-custom{
+  background-image: url('sources/button/Rectangle 152.png');
+}
+
+.radio-label span + span{
+  margin-left: 6px;
+}
+
+#game_start {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#settings {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#gameover_screen {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOver.png");
+  background-size: cover;
+}
+
+#gameover_menu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background-image: url("./sources/background/gameOverMenu.png");
+  background-size: cover;
+}
+
+#revenge {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#revenge:hover,
+#revenge:active {
+  filter: contrast(1.8);
 }
 
 #cutscene {

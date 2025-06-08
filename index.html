@@ -6,7 +6,7 @@
     <meta name="viewport" , content="width=device-width, initial-scale=1.0" />
     <title>Breakout</title>
     <link rel="stylesheet" href="breakout.css" />
-    <script src="breakout.js"></script>
+    <script src="breakout.js" defer></script>
   </head>
 
   <body>
@@ -19,24 +19,137 @@
         </div>
       </div>
     </div>
+
     <div id="level_select_menu">
       <div id="button-wrapper_level">
         <button id="lev_1"><img src="./sources/button/level1.png" alt="Level 1" /></button>
         <button id="lev_2"><img src="./sources/button/level2.png" alt="Level 2" /></button>
         <button id="lev_3"><img src="./sources/button/level3.png" alt="Level 3" /></button>
+        <button id="lev_1">
+          <img src="./sources/button/level1.png" alt="Level 1" />
+        </button>
+        <button id="lev_2">
+          <img src="./sources/button/level2.png" alt="Level 2" />
+        </button>
+        <button id="lev_3">
+          <img src="./sources/button/level3.png" alt="Level 3" />
+        </button>
         <!-- <button id="return">돌아가기</button> -->
       </div>
 
       <div id="return">&lt;BACK</div>
     </div>
-    <canvas id="board"></canvas>
-    
+
+    <div id="settings_menu">
+      <nav id="settings_nav">
+        <ul>
+          <li data-panel="music_panel" class="nav-item active">
+            # Music
+          </li>
+          <li data-panel="ball_panel" class="nav-item">
+            # Ball
+          </li>
+          <li data-panel="back" class="nav-item">
+            Back
+          </li>
+        </ul>
+      </nav>
+  
     <div id="cutscene"
       style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 600px; z-index: 1000;">
       <img id="cutscene-img" style="width: 100%; height: 100%;" />
       <div id="cutscene-skip"
         style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; cursor: pointer; font-size: 20px; color: white; background: rgba(0,0,0,0.5); text-align: center; line-height: 30px; border-radius: 5px;">
         <img src="./sources/cutscene/skip.png" alt="skip"/></div>
+      <div id="settings_content">
+        <section id="music_panel" class="panel">
+          <h2># Music</h2>
+          <form id="music_form">
+            <label class="radio-label">
+              <input type="radio" name="music" value="music1" />
+              <span class="radio-custom"></span>
+              music 1
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="music" value="music2" checked />
+              <span class="radio-custom"></span>
+              music 2
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="music" value="music3"/>
+              <span class="radio-custom"></span>
+              music 3
+            </label>
+          </form>
+        </section>
+
+        <section id="ball_panel" class="panel hidden">
+          <h2># Ball</h2>
+          <form id="ball_form">
+            <label class="radio-label">
+              <input type="radio" name="ball" value="small">
+              <span class="radio-custom"></span>
+              점수 x1.5
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ball" value="medium" checked>
+              <span class="radio-custom"></span>
+              점수 x1
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ball" value="large">
+              <span class="radio-custom"></span>
+              점수 x0.5
+            </label>
+          </form>
+        </section>
+
+        <section id="back" class="panel hidden">
+          <h2>&gt; Back</h2>
+        </section>
+      </div>
+    </div>
+    <canvas id="board"></canvas>
+    <div id="gameover_screen"></div>
+    <div id="gameover_menu">
+      <button id="revenge">
+        <img src="./sources/button/revenge.png" alt="revenge" />
+      </button>
+    </div>
+
+    <div
+      id="cutscene"
+      style="
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px;
+        height: 600px;
+        z-index: 1000;
+      "
+    >
+      <img id="cutscene-img" style="width: 100%; height: 100%" />
+      <div
+        id="cutscene-skip"
+        style="
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 30px;
+          height: 30px;
+          cursor: pointer;
+          font-size: 20px;
+          color: white;
+          background: rgba(0, 0, 0, 0.5);
+          text-align: center;
+          line-height: 30px;
+          border-radius: 5px;
+        "
+      >
+        ⏩
+      </div>
     </div>
   </body>
 </html>
