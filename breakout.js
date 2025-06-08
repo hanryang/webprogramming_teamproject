@@ -68,6 +68,7 @@ let blockHeight = 55;
 let blockColumns = 13;
 let initBlockRows = 3; //add more as game goes on
 let blockCount = 0;
+let NextRound_BlockRemaining = 0;
 
 //starting block corners top left
 let blockX = 30;
@@ -645,7 +646,7 @@ function update(time = 0) {
   updateBlocks(deltaTime);
 
   //next level
-  if (blockCount <= 0) {
+  if (blockCount <= NextRound_BlockRemaining) {
     levelCompleted = true;
     let levelCompletedText;
     if (level < 3) {
@@ -884,6 +885,7 @@ function createBlocks() {
       }
     }
   }
+  NextRound_BlockRemaining = blockCount * 0.7;
 }
 
 function updateBlocks(deltaTime) {
