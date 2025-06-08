@@ -48,6 +48,8 @@ let ball = {
   velocityY: ballVelocityY,
 };
 
+// ball 옵션
+
 //blocks
 let blockArray = [];
 let blockWidth = 55;
@@ -164,7 +166,6 @@ window.onload = function () {
     "input[name='music']:checked"
   ).value;
   // 컷신 스킵 버튼 기능
-  // 컷신 스킵 버튼 기능
   document.getElementById("cutscene-skip").onclick = function () {
     if (cutsceneTimer) clearInterval(cutsceneTimer);
     endCutscene();
@@ -181,39 +182,12 @@ window.onload = function () {
 
     if (level <= 3) {
       console.log("level", level);
-      let countdown = 3;
-
-      // 카운트다운 이미지 요소 생성
-      let countdownImg = $("<img id='countdown-img'>").css({
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "200px",
-        zIndex: 100,
-      });
-
-      countdownImg.attr("src", `./sources/background/${countdown}.png`);
-      $("body").append(countdownImg);
-
-      let countdownInterval = setInterval(function () {
-        countdown--;
-        if (countdown > 0) {
-          $("#countdown-img").attr("src", `./sources/background/${countdown}.png`);
-        } else {
-          clearInterval(countdownInterval);
-          $("#countdown-img").remove();
-
-          board.style.display = "block"; // 컷신 후 보드 표시
-          resetGame(); // 게임 시작
-        }
-      }, 1000);
+      countdown321();
     } else {
       level = 1;
       isAnimationRunning = false;
       startMenu.style.display = "block";
       board.style.display = "none";
-
     }
   };
 
@@ -227,6 +201,8 @@ window.onload = function () {
     storyMode = true;
     level = 1;
     score = 0;
+    //bgm 재생
+    playBGM(selectedMusic);
     // 컷신 재생 후 게임 시작
     playCutscene(introImages, countdown321);
   };
@@ -369,6 +345,12 @@ window.onload = function () {
         setTimeout(() => {
           settingsMenu.style.display = "none";
           startMenu.style.display = "block";
+          //메인메뉴 복귀했다 다시 돌아와도 처음 setting 들어갔을 때와 같은 방식으로 표시됨됨
+          settingsNavItems.forEach((ni) => ni.classList.remove("active"));
+          document
+            .querySelector('[data-panel="music_panel"]')
+            .classList.add("active");
+          document.getElementById("music_panel").classList.add("active");
         }, 100);
       }
       // 그 외 패널이면 해당 패널만 보여주기
@@ -386,7 +368,6 @@ window.onload = function () {
     bgmPlayer = new Audio(musicMap[musicKey]);
     bgmPlayer.loop = true;
     bgmPlayer.volume = 0.5;
-    bgmPlayer.play();
   }
 
   musicForm.addEventListener("change", (e) => {

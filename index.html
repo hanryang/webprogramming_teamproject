@@ -48,7 +48,7 @@
         <ul>
           <li data-panel="music_panel" class="nav-item active"># Music</li>
           <li data-panel="ball_panel" class="nav-item"># Ball</li>
-          <li data-panel="back" class="nav-item">Back</li>
+          <li data-panel="back" class="nav-item">&gt; Back</li>
         </ul>
       </nav>
 
@@ -76,27 +76,30 @@
 
         <section id="ball_panel" class="panel hidden">
           <h2># Ball</h2>
-          <form id="ball_form">
-            <label class="radio-label">
+          <form id="ball_form" class="ball-form">
+            <label class="ball-radio-label">
               <input type="radio" name="ball" value="small" />
               <span class="radio-custom"></span>
-              점수 x1.5
+              <span class="ball-text">점수 x1.5</span>
+              <img src="sources/ball/ball-S.png" class="ball-img" alt="공1" />
             </label>
-            <label class="radio-label">
+            <label class="ball-radio-label">
               <input type="radio" name="ball" value="medium" checked />
               <span class="radio-custom"></span>
-              점수 x1
+              <span class="ball-text">점수 x1</span>
+              <img src="sources/ball/ball-M.png" class="ball-img" alt="공2" />
             </label>
-            <label class="radio-label">
+            <label class="ball-radio-label">
               <input type="radio" name="ball" value="large" />
               <span class="radio-custom"></span>
-              점수 x0.5
+              <span class="ball-text">점수 x0.5</span>
+              <img src="sources/ball/ball-L.png" class="ball-img" alt="공3" />
             </label>
           </form>
         </section>
 
         <section id="back" class="panel hidden">
-          <h2>&gt; Back</h2>
+          <h2>&lt;Back</h2>
         </section>
       </div>
     </div>
